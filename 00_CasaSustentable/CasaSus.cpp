@@ -3,8 +3,6 @@
 * Proyecto final - Casa sustentable
 */
 
-/*TESTING GIT*/
-
 #include <iostream>
 #include <stdlib.h>
 
