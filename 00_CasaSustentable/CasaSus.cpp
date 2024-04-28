@@ -181,9 +181,6 @@ bool Start() {
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
 
-	//character01 = new AnimatedModel("models/animacionMono1.fbx");
-	//character02 = new AnimatedModel("models/animacionMono2.fbx");
-	//character03 = new AnimatedModel("models/animacionAmogus.fbx");
 
 	// Cubemap
 	vector<std::string> faces
