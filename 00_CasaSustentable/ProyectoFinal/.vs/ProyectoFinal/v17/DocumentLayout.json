@@ -4,6 +4,9 @@
   "Documents": [
     {
       "AbsoluteMoniker": "D:0:0:{B41DBD3B-9A60-4CC8-8CA4-CEBA9A555BC5}|ProyectoFinal.vcxproj|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\cg\\08_IlluminationModelsII\\08_IllumModels2.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -13,8 +16,19 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "08_IllumModels2.cpp",
+              "DocumentMoniker": "D:\\cg\\08_IlluminationModelsII\\08_IllumModels2.cpp",
+              "ToolTip": "D:\\cg\\08_IlluminationModelsII\\08_IllumModels2.cpp",
+              "ViewState": "AQIAAGsBAAAAAAAAAAAtwHEBAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-04-29T03:58:53.99Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -23,7 +37,7 @@
               "RelativeDocumentMoniker": "..\\CasaSus.cpp",
               "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
               "RelativeToolTip": "..\\CasaSus.cpp",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAAAAAA",
+              "ViewState": "AQIAAB8CAAAAAAAAAAAtwDACAAAXAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-04-28T21:51:19.896Z",
               "EditorCaption": ""

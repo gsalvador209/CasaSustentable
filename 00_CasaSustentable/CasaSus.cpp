@@ -77,12 +77,14 @@ Shader *wavesShader;
 
 Shader *cubemapShader;
 Shader *dynamicShader;
+Shader* basicShader; //Auxiliar para ver la ubicación de luces
 
 // Carga la información del modelo
 Model	*house;
 Model   *door;
 Model   *moon;
 Model   *gridMesh;
+Model* lightDummy; //Rombo para ver las luces
 
 // Modelos animados
 AnimatedModel   *character01, * character02, * character03;
@@ -167,6 +169,7 @@ bool Start() {
 	wavesShader = new Shader("shaders/13_wavesAnimation.vs", "shaders/13_wavesAnimation.fs");
 	cubemapShader = new Shader("shaders/10_vertex_cubemap.vs", "shaders/10_fragment_cubemap.fs");
 	dynamicShader = new Shader("shaders/10_vertex_skinning-IT.vs", "shaders/10_fragment_skinning-IT.fs");
+	basicShader = new Shader("shaders/10_vertex_simple.vs", "shaders/10_fragment_simple.fs");
 
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -174,7 +177,7 @@ bool Start() {
 	// Dibujar en malla de alambre
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	house = new Model("models/ViteCopia.fbx");
+	house = new Model("models/Cultivos.fbx");
 	door = new Model("models/IllumModels/Door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
@@ -201,24 +204,26 @@ bool Start() {
 	// Lights configuration
 	
 	Light light01;
-	light01.Position = glm::vec3(8.0f, 2.0f, 8.0f);
-	light01.Color = glm::vec4(0.2f, 0.0f, 0.0f, 1.0f);
+	light01.Position = glm::vec3(0.0f, 5.0f, 0.0f);
+	light01.Color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	gLights.push_back(light01);
 
-	Light light02;
-	light02.Position = glm::vec3(-5.0f, 2.0f, 5.0f);
-	light02.Color = glm::vec4(0.0f, 0.2f, 0.0f, 1.0f);
-	gLights.push_back(light02);
+	lightDummy = new Model("models/IllumModels/lightDummy.fbx");
 
-	Light light03;
-	light03.Position = glm::vec3(5.0f, 2.0f, -5.0f);
-	light03.Color = glm::vec4(0.0f, 0.0f, 0.2f, 1.0f);
-	gLights.push_back(light03);
+	//Light light02;
+	//light02.Position = glm::vec3(-5.0f, 2.0f, 5.0f);
+	//light02.Color = glm::vec4(0.0f, 0.2f, 0.0f, 1.0f);
+	//gLights.push_back(light02);
 
-	Light light04;
-	light04.Position = glm::vec3(-5.0f, 2.0f, -5.0f);
-	light04.Color = glm::vec4(0.2f, 0.2f, 0.0f, 1.0f);
-	gLights.push_back(light04);
+	//Light light03;
+	//light03.Position = glm::vec3(5.0f, 2.0f, -5.0f);
+	//light03.Color = glm::vec4(0.0f, 0.0f, 0.2f, 1.0f);
+	//gLights.push_back(light03);
+
+	//Light light04;
+	//light04.Position = glm::vec3(-5.0f, 2.0f, -5.0f);
+	//light04.Color = glm::vec4(0.2f, 0.2f, 0.0f, 1.0f);
+	//gLights.push_back(light04);
 	
 	// SoundEngine->play2D("sound/EternalGarden.mp3", true);
 
@@ -301,8 +306,8 @@ bool Update() {
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		mLightsShader->setMat4("model", model);
 
 		// Configuramos propiedades de fuentes de luz
@@ -342,7 +347,27 @@ bool Update() {
 
 	glUseProgram(0);
 
+	{
+		basicShader->use();
 
+		basicShader->setMat4("projection", projection);
+		basicShader->setMat4("view", view);
+
+		glm::mat4 model;
+
+		for (size_t i = 0; i < gLights.size(); ++i) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, gLights[i].Position);
+			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+			basicShader->setMat4("model", model);
+
+			lightDummy->Draw(*basicShader);
+		}
+
+	}
+
+	glUseProgram(0);
 	// Actividad 5.2
 	/*
 	{
@@ -534,6 +559,15 @@ void processInput(GLFWwindow* window)
 		door_rotation += 1.f;
 	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
 		door_rotation -= 1.f;
+
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+		gLights.at(0).Position.x += 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+		gLights.at(0).Position.x -= 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+		gLights.at(0).Position.z += 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+		gLights.at(0).Position.z -= 0.1f;
 
 	// Character movement
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
