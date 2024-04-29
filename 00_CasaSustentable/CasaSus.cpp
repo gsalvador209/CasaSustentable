@@ -83,6 +83,7 @@ Shader* basicShader; //Auxiliar para ver la ubicación de luces
 Model	*house;
 Model   *door;
 Model   *moon;
+Model *cultivos;
 Model   *gridMesh;
 Model* lightDummy; //Rombo para ver las luces
 
@@ -177,11 +178,11 @@ bool Start() {
 	// Dibujar en malla de alambre
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	house = new Model("models/Cultivos.fbx");
+	house = new Model("models/Cultivos2.fbx");
 	door = new Model("models/IllumModels/Door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
-
+	cultivos = new Model("models/Cultivos2.fbx");
 
 	// Cubemap
 	vector<std::string> faces
@@ -329,8 +330,14 @@ bool Update() {
 		mLightsShader->setVec4("MaterialSpecularColor", material01.specular);
 		mLightsShader->setFloat("transparency", material01.transparency);
 
-		house->Draw(*mLightsShader);
+		cultivos->Draw(*mLightsShader);
 
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, glm::vec3(0.0f, 2.0f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+
+		//earth->Draw(*mLightsShader);
 		// model = glm::mat4(1.0f);
 
 		// Actividad 5.1
@@ -367,6 +374,9 @@ bool Update() {
 
 	}
 
+
+	{
+	}
 	glUseProgram(0);
 	// Actividad 5.2
 	/*
@@ -565,9 +575,9 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
 		gLights.at(0).Position.x -= 0.1f;
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
-		gLights.at(0).Position.z += 0.1f;
+		gLights.at(0).Position.y += 0.1f;
 	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
-		gLights.at(0).Position.z -= 0.1f;
+		gLights.at(0).Position.y -= 0.1f;
 
 	// Character movement
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
