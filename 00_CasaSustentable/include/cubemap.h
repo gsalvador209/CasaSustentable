@@ -131,25 +131,15 @@ public:
         glUseProgram(0);
     }
 
-    void drawCubeMap(Shader& shad, glm::mat4& projection, glm::mat4& view, Light sun, Camera camera,Material
-     material) {
+    void drawCubeMap(Shader& shad, glm::mat4& projection, glm::mat4& view, glm::vec4 &color) {
 
         glUseProgram(0);
         glDepthMask(GL_FALSE);
         shad.use();
 
-        glm::mat4 model = glm::mat4(1.0f);
-
         shad.setMat4("projection", projection);
         shad.setMat4("view", view);
-        shad.setVec4("LightColor", sun.Color);
-        shad.setInt("AlphaIndex", sun.alphaIndex);
-        shad.setVec3("lightPosition", sun.Position);
-        shad.setVec3("lightDirection", sun.Direction);
-        shad.setVec4("lightPower", sun.Power);
-        shad.setVec3("eye",camera.Position);
-        shad.setMat4("model", model);
-        shad.setVec4("MaterialSpecularColor", material.specular);
+        shad.setVec4("LightColor", color);
         
         //cout << sun.distance << endl;
         glBindVertexArray(VAO);
