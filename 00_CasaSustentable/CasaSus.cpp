@@ -175,7 +175,7 @@ bool Start() {
 	cubemapShader = new Shader("shaders/10_vertex_cubemap.vs", "shaders/10_fragment_cubemap.fs");
 	dynamicShader = new Shader("shaders/10_vertex_skinning-IT.vs", "shaders/10_fragment_skinning-IT.fs");
 	basicShader = new Shader("shaders/10_vertex_simple.vs", "shaders/10_fragment_simple.fs");
-	dynamicSky = new Shader("shaders/10_vertex_cubemap.vs", "shaders/Dynamic_sky.fs");
+	dynamicSky = new Shader("shaders/Dynamic_sky.vs", "shaders/Dynamic_sky.fs");
 
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -302,7 +302,7 @@ bool Update() {
 
 	// Cubemap (fondo)
 	{
-		mainCubeMap->drawCubeMap(*dynamicSky, projection, view, gLights.at(0).Color);
+		mainCubeMap->drawCubeMap(*dynamicSky, projection, view, gLights.at(0),camera,material01);
 	}
 	/**/
 	 {
