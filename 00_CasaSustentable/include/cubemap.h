@@ -24,7 +24,7 @@ class CubeMap {
 
 public:
 	CubeMap():textureID(0), VAO(0), VBO(0), EBO(0){
-        float size = 500.0f;
+        float size = 50.0f;
         float skyboxVertices[] = {
             // positions          
             -size,  size, -size,
@@ -97,7 +97,7 @@ public:
             if (data)
             {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                    0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+                    0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data
                 );
                 stbi_image_free(data);
             }
@@ -127,6 +127,24 @@ public:
         glBindVertexArray(VAO);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
         glDrawArrays(GL_TRIANGLES, 0, 36*3);
+        glDepthMask(GL_TRUE);
+        glUseProgram(0);
+    }
+
+    void drawCubeMap(Shader& shad, glm::mat4& projection, glm::mat4& view, glm::vec4 &color) {
+
+        glUseProgram(0);
+        glDepthMask(GL_FALSE);
+        shad.use();
+
+        shad.setMat4("projection", projection);
+        shad.setMat4("view", view);
+        shad.setVec4("LightColor", color);
+        
+        //cout << sun.distance << endl;
+        glBindVertexArray(VAO);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+        glDrawArrays(GL_TRIANGLES, 0, 36 * 3);
         glDepthMask(GL_TRUE);
         glUseProgram(0);
     }

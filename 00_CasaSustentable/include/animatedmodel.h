@@ -75,7 +75,7 @@ public:
 			if (animationCount > keys - 1) {
 				animationCount = 0;
 			}
-			// Configuración de la pose en el instante t
+			// Configuraciï¿½n de la pose en el instante t
 			SetPose((float)animationCount, gBones);
 			elapsedTime = 0.0f;
 		}

@@ -61,6 +61,9 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
+float t = 0.0f;
+float day_duration_sec = 30.0f; //Los segundos aproximados que duara un día
+bool time_flow = true;
 
 glm::vec3 position(0.0f,0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
@@ -78,6 +81,7 @@ Shader *wavesShader;
 Shader *cubemapShader;
 Shader *dynamicShader;
 Shader* basicShader; //Auxiliar para ver la ubicación de luces
+Shader* dynamicSky; //Para el cambio del color del cielo
 
 // Carga la información del modelo
 Model	*house;
@@ -139,7 +143,7 @@ bool Start() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Creación de la ventana con GLFW
-	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Animation", NULL, NULL);
+	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Casa sustentable", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -171,6 +175,7 @@ bool Start() {
 	cubemapShader = new Shader("shaders/10_vertex_cubemap.vs", "shaders/10_fragment_cubemap.fs");
 	dynamicShader = new Shader("shaders/10_vertex_skinning-IT.vs", "shaders/10_fragment_skinning-IT.fs");
 	basicShader = new Shader("shaders/10_vertex_simple.vs", "shaders/10_fragment_simple.fs");
+	dynamicSky = new Shader("shaders/10_vertex_cubemap.vs", "shaders/Dynamic_sky.fs");
 
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -178,7 +183,7 @@ bool Start() {
 	// Dibujar en malla de alambre
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	house = new Model("models/Cultivos2.fbx");
+	house = new Model("models/ViteCopia.fbx");
 	door = new Model("models/IllumModels/Door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
@@ -187,12 +192,12 @@ bool Start() {
 	// Cubemap
 	vector<std::string> faces
 	{
-		"textures/cubemap/01/posx.png",
-		"textures/cubemap/01/negx.png",
-		"textures/cubemap/01/posy.png",
-		"textures/cubemap/01/negy.png",
-		"textures/cubemap/01/posz.png",
-		"textures/cubemap/01/negz.png"
+		"textures/cubemap/03/posx.png",
+		"textures/cubemap/03/negx.png",
+		"textures/cubemap/03/posy.png",
+		"textures/cubemap/03/negy.png",
+		"textures/cubemap/03/posz.png",
+		"textures/cubemap/03/negz.png"
 	};
 	mainCubeMap = new CubeMap();
 	mainCubeMap->loadCubemap(faces);
@@ -204,10 +209,11 @@ bool Start() {
 
 	// Lights configuration
 	
-	Light light01;
-	light01.Position = glm::vec3(0.0f, 5.0f, 0.0f);
-	light01.Color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	gLights.push_back(light01);
+	Light sun;
+	sun.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+	sun.Color = glm::vec4(0.2f, 0.1f, 0.0f, 1.0f);
+	sun.Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
+	gLights.push_back(sun);
 
 	lightDummy = new Model("models/IllumModels/lightDummy.fbx");
 
@@ -267,12 +273,17 @@ bool Update() {
 	float currentFrame = (float)glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
+	if(time_flow)
+		t += deltaTime;
 
+	if (t >= day_duration_sec) {
+		t = 0;
+	}
 	// Procesa la entrada del teclado o mouse
 	processInput(window);
 
 	// Renderizado R - G - B - A
-	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+	glClearColor(0.01f, 0.01f, 0.01f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glm::mat4 projection;
@@ -291,7 +302,7 @@ bool Update() {
 
 	// Cubemap (fondo)
 	{
-		mainCubeMap->drawCubeMap(*cubemapShader, projection, view);
+		mainCubeMap->drawCubeMap(*dynamicSky, projection, view, gLights.at(0).Color);
 	}
 	/**/
 	 {
@@ -307,8 +318,8 @@ bool Update() {
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		mLightsShader->setMat4("model", model);
 
 		// Configuramos propiedades de fuentes de luz
@@ -330,7 +341,7 @@ bool Update() {
 		mLightsShader->setVec4("MaterialSpecularColor", material01.specular);
 		mLightsShader->setFloat("transparency", material01.transparency);
 
-		cultivos->Draw(*mLightsShader);
+		house->Draw(*mLightsShader);
 
 		//model = glm::mat4(1.0f);
 		//model = glm::translate(model, glm::vec3(0.0f, 2.0f, 0.0f)); // translate it down so it's at the center of the scene
@@ -354,7 +365,28 @@ bool Update() {
 
 	glUseProgram(0);
 
-	{
+	//{ //Dibujo del rombo de luz
+	//	basicShader->use();
+
+	//	basicShader->setMat4("projection", projection);
+	//	basicShader->setMat4("view", view);
+
+	//	glm::mat4 model;
+
+	//	for (size_t i = 0; i < gLights.size(); ++i) {
+	//		model = glm::mat4(1.0f);
+	//		model = glm::translate(model, gLights[i].Position);
+	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+	//		basicShader->setMat4("model", model);
+
+	//		lightDummy->Draw(*basicShader);
+	//	}
+
+	//}
+	//glUseProgram(0);
+
+	{//Animación del sol
 		basicShader->use();
 
 		basicShader->setMat4("projection", projection);
@@ -362,22 +394,41 @@ bool Update() {
 
 		glm::mat4 model;
 
-		for (size_t i = 0; i < gLights.size(); ++i) {
+		//Movimiento del sol
+		gLights.at(0).Position.x = 400 * cos(glm::radians(360/day_duration_sec*t));
+		gLights.at(0).Position.y = 400 * sin(glm::radians(360/day_duration_sec*t));
+		gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
+		
+		if (t > day_duration_sec / 2) { //apaga el sol en la noche
+			gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, gLights[i].Position);
+			model = glm::translate(model, gLights[0].Position);
 			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+			model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
 			basicShader->setMat4("model", model);
-
-			lightDummy->Draw(*basicShader);
+		}
+		else {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, gLights[0].Position);
+			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+			basicShader->setMat4("model", model);
 		}
 
-	}
+		//Atardeceres
+		if (t > day_duration_sec / 2) { //Anochecer
+			gLights.at(0).Color = glm::vec4(0.04f, 0.04f, 0.1f, 1.0f);
+		}
+		else { //Amanecer, día y atardecer
+			gLights.at(0).Color.x = 0.2f; //Rojo activo todo el día
+			gLights.at(0).Color.y = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
+			gLights.at(0).Color.z = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
+		}
 
-
-	{
+		lightDummy->Draw(*basicShader);
 	}
 	glUseProgram(0);
+	
 	// Actividad 5.2
 	/*
 	{
@@ -560,6 +611,8 @@ void processInput(GLFWwindow* window)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+		time_flow = not time_flow;
 
 	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
 		door_offset += 0.01f;

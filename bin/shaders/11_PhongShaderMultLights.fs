@@ -70,5 +70,6 @@ void main()
 
     vec4 texel = texture(texture_diffuse1, TexCoords);
 
-    FragColor = texel * ex_color;
+    //FragColor = texel * ex_color;
+    FragColor = ex_color;
 }
