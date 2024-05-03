@@ -33,6 +33,7 @@ using namespace irrklang;
 // Functions
 bool Start();
 bool Update();
+void changeCubeMapFaces(vector<std::string> faces);
 
 // Definición de callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -64,6 +65,7 @@ float elapsedTime = 0.0f;
 float t = 0.0f;
 float day_duration_sec = 30.0f; //Los segundos aproximados que duara un día
 bool time_flow = true;
+int toggle = 0;
 
 glm::vec3 position(0.0f,0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
@@ -399,13 +401,27 @@ bool Update() {
 		gLights.at(0).Position.y = 400 * sin(glm::radians(360/day_duration_sec*t));
 		gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
 		
-		if (t > day_duration_sec / 2) { //apaga el sol en la noche
+		if (t > day_duration_sec/2) { //apaga el sol en la noche
 			gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, gLights[0].Position);
 			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
 			sunShader->setMat4("model", model);
+			
+			if (toggle != 2){
+				vector<std::string> faces = {
+					"textures/cubemap/04/posx.png",
+					"textures/cubemap/04/negx.png",
+					"textures/cubemap/04/posy.png",
+					"textures/cubemap/04/negy.png",
+					"textures/cubemap/04/posz.png",
+					"textures/cubemap/04/negz.png"
+				};
+				changeCubeMapFaces(faces);
+				toggle = 2;
+			}
+
 		}
 		else {
 			model = glm::mat4(1.0f);
@@ -413,11 +429,24 @@ bool Update() {
 			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
 			sunShader->setMat4("model", model);
+			if (toggle != 0) {
+				vector<std::string> faces = {
+					"textures/cubemap/03/posx.png",
+					"textures/cubemap/03/negx.png",
+					"textures/cubemap/03/posy.png",
+					"textures/cubemap/03/negy.png",
+					"textures/cubemap/03/posz.png",
+					"textures/cubemap/03/negz.png"
+				};
+				changeCubeMapFaces(faces);
+				toggle = 0;
+			}
 		}
 
 		//Atardeceres
-		if (t > day_duration_sec / 2) { //Anochecer
-			gLights.at(0).Color = glm::vec4(0.04f, 0.04f, 0.1f, 1.0f);
+		if (t > day_duration_sec/2){ //Anochecer
+			gLights.at(0).Color = glm::vec4(0.08f, 0.08f, 0.2f, 1.0f);
+
 		}
 		else { //Amanecer, día y atardecer
 			gLights.at(0).Color.x = 0.2f; //Rojo activo todo el día
@@ -589,6 +618,11 @@ bool Update() {
 	glfwPollEvents();
 
 	return true;
+}
+
+void changeCubeMapFaces(vector<std::string> faces) {
+	//mainCubeMap = new CubeMap();
+	mainCubeMap->loadCubemap(faces);
 }
 
 // Procesamos entradas del teclado
