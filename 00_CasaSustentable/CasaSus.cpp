@@ -80,7 +80,7 @@ Shader *wavesShader;
 
 Shader *cubemapShader;
 Shader *dynamicShader;
-Shader* basicShader; //Auxiliar para ver la ubicación de luces
+Shader* sunShader; //Auxiliar para ver la ubicación de luces
 Shader* dynamicSky; //Para el cambio del color del cielo
 
 // Carga la información del modelo
@@ -89,7 +89,7 @@ Model   *door;
 Model   *moon;
 Model *cultivos;
 Model   *gridMesh;
-Model* lightDummy; //Rombo para ver las luces
+Model* SunModel; //Rombo para ver las luces
 
 // Modelos animados
 AnimatedModel   *character01, * character02, * character03;
@@ -174,7 +174,7 @@ bool Start() {
 	wavesShader = new Shader("shaders/13_wavesAnimation.vs", "shaders/13_wavesAnimation.fs");
 	cubemapShader = new Shader("shaders/10_vertex_cubemap.vs", "shaders/10_fragment_cubemap.fs");
 	dynamicShader = new Shader("shaders/10_vertex_skinning-IT.vs", "shaders/10_fragment_skinning-IT.fs");
-	basicShader = new Shader("shaders/10_vertex_simple.vs", "shaders/10_fragment_simple.fs");
+	sunShader = new Shader("shaders/10_vertex_simple.vs", "shaders/Dynamic_sun.fs");
 	dynamicSky = new Shader("shaders/10_vertex_cubemap.vs", "shaders/Dynamic_sky.fs");
 
 	// Máximo número de huesos: 100
@@ -215,7 +215,7 @@ bool Start() {
 	sun.Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
 	gLights.push_back(sun);
 
-	lightDummy = new Model("models/IllumModels/lightDummy.fbx");
+	SunModel = new Model("models/IllumModels/Sol.fbx");
 
 	//Light light02;
 	//light02.Position = glm::vec3(-5.0f, 2.0f, 5.0f);
@@ -366,10 +366,10 @@ bool Update() {
 	glUseProgram(0);
 
 	//{ //Dibujo del rombo de luz
-	//	basicShader->use();
+	//	sunShader->use();
 
-	//	basicShader->setMat4("projection", projection);
-	//	basicShader->setMat4("view", view);
+	//	sunShader->setMat4("projection", projection);
+	//	sunShader->setMat4("view", view);
 
 	//	glm::mat4 model;
 
@@ -378,20 +378,20 @@ bool Update() {
 	//		model = glm::translate(model, gLights[i].Position);
 	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	//		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-	//		basicShader->setMat4("model", model);
+	//		sunShader->setMat4("model", model);
 
-	//		lightDummy->Draw(*basicShader);
+	//		SunModel->Draw(*sunShader);
 	//	}
 
 	//}
 	//glUseProgram(0);
 
 	{//Animación del sol
-		basicShader->use();
+		sunShader->use();
 
-		basicShader->setMat4("projection", projection);
-		basicShader->setMat4("view", view);
-
+		sunShader->setMat4("projection", projection);
+		sunShader->setMat4("view", view);
+		
 		glm::mat4 model;
 
 		//Movimiento del sol
@@ -405,14 +405,14 @@ bool Update() {
 			model = glm::translate(model, gLights[0].Position);
 			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
-			basicShader->setMat4("model", model);
+			sunShader->setMat4("model", model);
 		}
 		else {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, gLights[0].Position);
 			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-			basicShader->setMat4("model", model);
+			sunShader->setMat4("model", model);
 		}
 
 		//Atardeceres
@@ -424,8 +424,8 @@ bool Update() {
 			gLights.at(0).Color.y = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
 			gLights.at(0).Color.z = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
 		}
-
-		lightDummy->Draw(*basicShader);
+		sunShader->setVec4("LightColor", gLights.at(0).Color);
+		SunModel->Draw(*sunShader);
 	}
 	glUseProgram(0);
 	
