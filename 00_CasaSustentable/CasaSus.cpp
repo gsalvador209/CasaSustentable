@@ -63,7 +63,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
 float t = 0.0f;
-float day_duration_sec = 30.0f; //Los segundos aproximados que duara un día
+float day_duration_sec = 100.0f; //Los segundos aproximados que duara un día
 bool time_flow = true;
 int toggle = 0;
 
@@ -185,7 +185,7 @@ bool Start() {
 	// Dibujar en malla de alambre
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	house = new Model("models/ViteCopia.fbx");
+	house = new Model("models/Cas4Con_join.fbx");
 	door = new Model("models/IllumModels/Door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
@@ -319,9 +319,9 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 		mLightsShader->setMat4("model", model);
 
 		// Configuramos propiedades de fuentes de luz

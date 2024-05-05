@@ -9,16 +9,19 @@
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\10_vertex_simple.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\Dynamic_sun.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongShaderMultLights.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\include\\mesh.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\Dynamic_sky.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B41DBD3B-9A60-4CC8-8CA4-CEBA9A555BC5}|ProyectoFinal.vcxproj|C:\\USERS\\SALVADOR\\DOCUMENTS\\PROYECTO CG\\CASASUSTENTABLE\\00_CASASUSTENTABLE\\INCLUDE\\MODELSTRUCTS.H||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B41DBD3B-9A60-4CC8-8CA4-CEBA9A555BC5}|ProyectoFinal.vcxproj|C:\\USERS\\SALVADOR\\DOCUMENTS\\PROYECTO CG\\CASASUSTENTABLE\\00_CASASUSTENTABLE\\INCLUDE\\MESH.H||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\Dynamic_sun.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\include\\modelstructs.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -28,8 +31,34 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "11_PhongShaderMultLights.fs",
+              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongShaderMultLights.fs",
+              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\11_PhongShaderMultLights.fs",
+              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongShaderMultLights.fs",
+              "RelativeToolTip": "..\\..\\bin\\shaders\\11_PhongShaderMultLights.fs",
+              "ViewState": "AQIAAD4AAAAAAAAAAAAAAEgAAAAEAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-05-05T05:13:44.139Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CasaSus.cpp",
+              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
+              "RelativeDocumentMoniker": "..\\CasaSus.cpp",
+              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
+              "RelativeToolTip": "..\\CasaSus.cpp",
+              "ViewState": "AQIAADgBAAAAAAAAAIAwwEMBAAA0AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-05-05T05:01:49.197Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 4,
@@ -38,14 +67,14 @@
               "RelativeDocumentMoniker": "..\\include\\mesh.h",
               "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\include\\mesh.h",
               "RelativeToolTip": "..\\include\\mesh.h",
-              "ViewState": "AQIAACIAAAAAAAAAAAAqwCwAAAAAAAAA",
+              "ViewState": "AQIAABIAAAAAAAAAAAAAACwAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-05-03T04:15:34.994Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "modelstructs.h",
               "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\include\\modelstructs.h",
               "RelativeDocumentMoniker": "..\\include\\modelstructs.h",
@@ -53,12 +82,11 @@
               "RelativeToolTip": "..\\include\\modelstructs.h",
               "ViewState": "AQIAAGUAAAAAAAAAAAAqwG8AAAAnAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-05-03T04:13:02.939Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-05-03T04:13:02.939Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 2,
               "Title": "Dynamic_sun.fs",
               "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\Dynamic_sun.fs",
               "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\Dynamic_sun.fs",
@@ -84,7 +112,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "Dynamic_sky.fs",
               "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\Dynamic_sky.fs",
               "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\Dynamic_sky.fs",
@@ -92,21 +120,7 @@
               "RelativeToolTip": "..\\..\\bin\\shaders\\Dynamic_sky.fs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-05-03T02:24:57.27Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CasaSus.cpp",
-              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
-              "RelativeDocumentMoniker": "..\\CasaSus.cpp",
-              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
-              "RelativeToolTip": "..\\CasaSus.cpp",
-              "ViewState": "AQIAAMYAAAAAAAAAAAAAANAAAAAoAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-04-28T21:51:19.896Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-05-03T02:24:57.27Z"
             }
           ]
         }
