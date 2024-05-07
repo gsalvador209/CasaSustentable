@@ -317,6 +317,21 @@ bool Update() {
 		mLightsShader->setMat4("projection", projection);
 		mLightsShader->setMat4("view", view);
 
+		if (t > day_duration_sec / 2) { //apaga el sol en la noche
+			if (toggle != 2) {
+				house = new Model("models/Cas5.fbx");
+				toggle = 2;
+				cout << "Dia" << endl;
+			}
+		}
+		else {
+			if (toggle != 0) {
+				house = new Model("models/Cas05Noche.fbx");
+				toggle = 0;
+				cout << "Noche" << endl;
+			}
+		}
+
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
