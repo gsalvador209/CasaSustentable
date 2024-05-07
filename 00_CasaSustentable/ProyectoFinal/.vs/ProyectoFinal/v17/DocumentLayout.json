@@ -13,12 +13,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{26341fe2-71dd-46fd-bb1b-2e51a92a0d64}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -27,14 +23,26 @@
               "RelativeDocumentMoniker": "..\\CasaSus.cpp",
               "ToolTip": "C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
               "RelativeToolTip": "..\\CasaSus.cpp",
-              "ViewState": "AQIAADgBAAAAAAAAAAAAAEgBAAAjAAAA",
+              "ViewState": "AQIAAHgAAAAAAAAAAAAqwG0BAAA7AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-05-07T17:58:15.603Z",
+              "WhenOpened": "2024-05-07T18:40:03.79Z",
               "EditorCaption": ""
             },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{26341fe2-71dd-46fd-bb1b-2e51a92a0d64}"
             }
           ]
         }

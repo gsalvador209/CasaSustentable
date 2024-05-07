@@ -63,7 +63,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
 float t = 0.0f;
-float day_duration_sec = 100.0f; //Los segundos aproximados que duara un día
+float day_duration_sec = 60.0f; //Los segundos aproximados que duara un día
 bool time_flow = true;
 int toggle = 0;
 
@@ -185,7 +185,7 @@ bool Start() {
 	// Dibujar en malla de alambre
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	house = new Model("models/Casa05Noche.fbx");
+	house = new Model("models/Casa05Dia.fbx");
 	door = new Model("models/IllumModels/Door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
@@ -319,14 +319,14 @@ bool Update() {
 
 		if (t > day_duration_sec / 2) { //apaga el sol en la noche
 			if (toggle != 2) {
-				house = new Model("models/Cas5.fbx");
+				house = new Model("models/Casa05Noche.fbx");
 				toggle = 2;
 				cout << "Dia" << endl;
 			}
 		}
 		else {
 			if (toggle != 0) {
-				house = new Model("models/Cas05Noche.fbx");
+				house = new Model("models/Casa05Dia.fbx");
 				toggle = 0;
 				cout << "Noche" << endl;
 			}
@@ -460,7 +460,7 @@ bool Update() {
 
 		//Atardeceres
 		if (t > day_duration_sec/2){ //Anochecer
-			gLights.at(0).Color = glm::vec4(0.08f, 0.08f, 0.2f, 1.0f);
+			gLights.at(0).Color = glm::vec4(0.15f, 0.15f, 0.2f, 1.0f);
 
 		}
 		else { //Amanecer, día y atardecer
