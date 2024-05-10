@@ -187,7 +187,7 @@ bool Start() {
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
 	//cout << "Casa" << endl;
-	house = new Model("models/Casa06.fbx");
+	house = new Model("models/Techo_cristal.fbx");
 	//cout << "Puerta" << endl;
 	door = new Model("models/IllumModels/Door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
