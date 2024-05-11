@@ -73,13 +73,18 @@ bool time_flow = true;
 int toggle = 0;
 int HouseFrame = 0;
 
-glm::vec3 position(0.0f,0.0f, 0.0f);
+glm::vec3 position(0.0f, 0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
 float     trdpersonOffset = 1.5f;
+float     frspersonOffset = 0.4f;
 float     scaleV = 0.025f;
 float     rotateCharacter = 0.0f;
 float	  door_offset = 0.0f;
 float	  door_rotation = 0.0f;
+
+float	  posicion_mono_x = 1.0f;
+float	  posicion_mono_y = 1.0f;
+
 
 // Shaders
 Shader *dynamicLightsShader;
@@ -212,6 +217,7 @@ bool Start() {
 	mirror = new Model("models/mirror.fbx");
 	crystals = new Model("models/Cristales_tex.fbx");
 	doorframe = new Model("models/Doorframe.fbx");
+	character01 = new AnimatedModel("models/personaje2.fbx");
 
 	// Cubemap
 	vector<std::string> faces
@@ -330,20 +336,20 @@ bool Update() {
 		mirror1_view = mirror1_camera.GetViewMatrix();
 
 	}
-	//else {
-	//	// cámara en tercera persona
-	//	projection = glm::perspective(glm::radians(camera3rd.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
-	//	view = camera3rd.GetViewMatrix();
+	else {
+		// cámara en tercera persona
+		projection = glm::perspective(glm::radians(camera3rd.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
+		view = camera3rd.GetViewMatrix();
 
-	//	//Camara de espejo1
-	//	mirror1_camera.Position.x = -camera3rd.Position.x; //Se invierte en x porque este espejo ve a ese eje
-	//	mirror1_camera.Position.y = camera3rd.Position.y; //Siempre se conserva el movimiento en Y
-	//	mirror1_camera.Position.z = camera3rd.Position.z; //Se conserva el movimiento porque no ve a z
-	//	mirror1_camera.Front = glm::vec3(-camera3rd.Front.x, camera3rd.Front.y, -camera3rd.Front.z); //Solo se conserva y
+		//Camara de espejo1
+		mirror1_camera.Position.x = -camera3rd.Position.x; //Se invierte en x porque este espejo ve a ese eje
+		mirror1_camera.Position.y = camera3rd.Position.y; //Siempre se conserva el movimiento en Y
+		mirror1_camera.Position.z = camera3rd.Position.z; //Se conserva el movimiento porque no ve a z
+		mirror1_camera.Front = glm::vec3(-camera3rd.Front.x, camera3rd.Front.y, -camera3rd.Front.z); //Solo se conserva y
 
-	//	mirror1_projection = glm::perspective(glm::radians(mirror1_camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
-	//	mirror1_view = mirror1_camera.GetViewMatrix();
-	//}
+		mirror1_projection = glm::perspective(glm::radians(mirror1_camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
+		mirror1_view = mirror1_camera.GetViewMatrix();
+	}
 
 	
 
@@ -495,12 +501,44 @@ bool Update() {
 		glUseProgram(0);
 	}
 
-	//Final
-	glStencilMask(0xFF); //Habilita edición del buffer
-	glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve todo 0 para todo
-	glEnable(GL_DEPTH_TEST);
-	
+	// Personaje en el espejo
+	{
+		character01->UpdateAnimation(deltaTime);
 
+		// Activación del shader del personaje
+		dynamicShader->use();
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		dynamicShader->setMat4("projection", mirror1_projection);
+		dynamicShader->setMat4("view", mirror1_view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+
+		if (camera.Front.z == 0.0f)
+			camera.Front.z = 0.0001f;
+		float rotation = glm::atan(camera.Front.x / -camera.Front.z);
+		if (camera.Front.z > 0)
+			rotation = rotation + 3.1415;
+
+
+		model = glm::translate(model, glm::vec3(camera.Position.x, 0.24f, -camera.Position.z));
+		model = glm::rotate(model, rotation, glm::vec3(0.0, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.006f, 0.006f, 0.006f));
+
+		dynamicShader->setMat4("model", model);
+
+		dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, character01->gBones);
+
+		// Dibujamos el modelo
+		character01->Draw(*dynamicShader);
+	}
+	glUseProgram(0);
+
+		//Reseteo del stencil mask
+		glStencilMask(0xFF); //Habilita la edición del buffer
+		glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve el mappeo de 0 a todo
+		glEnable(GL_DEPTH_TEST);
 
 	{ //Dibujo del sol
 		sunShader->use();
@@ -644,7 +682,7 @@ bool Update() {
 	}
 
 
-	{//
+	{
 		crystalShader->use();
 
 		// Activamos para objetos transparentes
@@ -690,101 +728,10 @@ bool Update() {
 		glUseProgram(0);
 	}
 
-	// Actividad 5.2
-	/*
-	{
-		// Activamos el shader de animaciòn procedural
-		proceduralShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		proceduralShader->setMat4("projection", projection);
-		proceduralShader->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-		
-		proceduralShader->setMat4("model", model);
-		proceduralShader->setFloat("time", proceduralTime);
-		proceduralShader->setFloat("radius", 5.0f);
-		proceduralShader->setFloat("height", 2.0f);
-
-		moon->Draw(*proceduralShader);
-		proceduralTime += 0.01;
-
-	}
-
-	glUseProgram(0);*/
 	
 
-	// Actividad 5.3
-	/*
-	{
-		// Activamos el shader de Phong
-		wavesShader->use();
 
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		wavesShader->setMat4("projection", projection);
-		wavesShader->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-		wavesShader->setMat4("model", model);
-
-		wavesShader->setFloat("time", wavesTime);
-		wavesShader->setFloat("radius", 5.0f);
-		wavesShader->setFloat("height", 5.0f);
-
-		gridMesh->Draw(*wavesShader);
-		wavesTime += 0.01;
-
-	}
-
-	glUseProgram(0);
-	*/
 	
-	// Objeto animado 1
-	/*
-	{
-		character01->UpdateAnimation(deltaTime);
-
-		// Activación del shader del personaje
-		dynamicShader->use();
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		dynamicShader->setMat4("projection", projection);
-		dynamicShader->setMat4("view", view);
-		  
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		
-		model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -5.0f));
-		model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.004f, 0.004f, 0.004f));
-
-		dynamicShader->setMat4("model", model);
-
-		dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, character01->gBones);
-
-		// Dibujamos el modelo
-		character01->Draw(*dynamicShader);
-	}
-	
-	glUseProgram(0); */
-
 
 	// Objeto animado 2
 	/*
@@ -845,10 +792,8 @@ bool Update() {
 
 	glUseProgram(0);*/
 
-	//Reseteo del stencil mask
-	glStencilMask(0xFF); //Habilita la edición dle buffer
-	glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve el mappeo de 0 a todo
-	glEnable(GL_DEPTH_TEST);
+
+	
 	
 	// glfw: swap buffers 
 	glfwSwapBuffers(window);
@@ -865,9 +810,6 @@ void changeCubeMapFaces(vector<std::string> faces) {
 // Procesamos entradas del teclado
 void processInput(GLFWwindow* window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
