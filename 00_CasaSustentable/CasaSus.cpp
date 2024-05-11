@@ -1,5 +1,5 @@
 /*
-* 
+*
 * Proyecto final - Casa sustentable
 */
 
@@ -39,7 +39,7 @@ void changeCubeMapFaces(vector<std::string> faces);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow *window);
+void processInput(GLFWwindow* window);
 
 // Gobals
 GLFWwindow* window;
@@ -50,7 +50,7 @@ const unsigned int SCR_HEIGHT = 768;
 
 // Definición de espejos
 glm::vec3 mirror1_position(-13.86f, 2.24f, -0.022f);
-Camera mirror1_camera(mirror1_position, glm::vec3(0.0f, 1.0f, 0.0f),0.0f,0.0f);  //Ve a X positivo
+Camera mirror1_camera(mirror1_position, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);  //Ve a X positivo
 
 
 // Definición de cámara (posición en XYZ)
@@ -87,38 +87,38 @@ float	  posicion_mono_y = 1.0f;
 
 
 // Shaders
-Shader *dynamicLightsShader;
-Shader *proceduralShader;
-Shader *wavesShader;
+Shader* dynamicLightsShader;
+Shader* proceduralShader;
+Shader* wavesShader;
 
-Shader *cubemapShader;
-Shader *dynamicShader;
+Shader* cubemapShader;
+Shader* dynamicShader;
 Shader* sunShader; //Auxiliar para ver la ubicación de luces
 Shader* dynamicSky; //Para el cambio del color del cielo
 Shader* mirrorStencilShader;
-Shader* crystalShader; 
+Shader* crystalShader;
 
 // Carga la información del modelo
-Model	*house;
-Model   *door;
+Model* house;
 Model* doorframe;
-Model   *moon;
-Model *cultivos;
-Model   *gridMesh;
-Model *SunModel; //Rombo para ver las luces
-Model *mirror; //Un plano que sirve para recortar con el stencil shader
+Model* door;
+Model* moon;
+Model* cultivos;
+Model* gridMesh;
+Model* SunModel; //Rombo para ver las luces
+Model* mirror; //Un plano que sirve para recortar con el stencil shader
 Model* crystals;
 Model* terreno;
 
 // Modelos animados
-AnimatedModel   *character01, * character02, * character03;
+AnimatedModel* character01, * character02, * character03;
 
 float tradius = 10.0f;
 float theta = 0.0f;
 float alpha = 0.0f;
 
 // Cubemap
-CubeMap *mainCubeMap;
+CubeMap* mainCubeMap;
 
 // Light gLight;
 std::vector<Light> gLights;
@@ -130,7 +130,7 @@ float proceduralTime = 0.0f;
 float wavesTime = 0.0f;
 
 // Audio
-ISoundEngine *SoundEngine = createIrrKlangDevice();
+ISoundEngine* SoundEngine = createIrrKlangDevice();
 
 // selección de cámara
 bool    activeCamera = 1; // activamos la primera cámara
@@ -199,7 +199,7 @@ bool Start() {
 	sunShader = new Shader("shaders/10_vertex_simple.vs", "shaders/Dynamic_sun.fs");
 	dynamicSky = new Shader("shaders/10_vertex_cubemap.vs", "shaders/Dynamic_sky.fs");
 	mirrorStencilShader = new Shader("shaders/24_mirror.vs", "shaders/24_mirror.fs");
-	crystalShader = new Shader("shaders/11_PhongCrystal.vs","shaders/11_PhongCrystal.fs");
+	crystalShader = new Shader("shaders/11_PhongCrystal.vs", "shaders/11_PhongCrystal.fs");
 
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -211,7 +211,7 @@ bool Start() {
 
 	house = new Model("models/CasaAnim.fbx");
 	//cout << "Puerta" << endl;
-	door = new Model("models/IllumModels/Door.fbx");
+	door = new Model("models/door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
 	cultivos = new Model("models/Cultivos2.fbx");
@@ -241,7 +241,7 @@ bool Start() {
 	camera3rd.Front = forwardView;
 
 	// Lights configuration
-	
+
 	Light sun;
 	sun.Position = glm::vec3(0.0f, 0.0f, 0.0f);
 	sun.Color = glm::vec4(0.2f, 0.1f, 0.0f, 1.0f);
@@ -264,7 +264,7 @@ bool Start() {
 	//light04.Position = glm::vec3(-5.0f, 2.0f, -5.0f);
 	//light04.Color = glm::vec4(0.2f, 0.2f, 0.0f, 1.0f);
 	//gLights.push_back(light04);
-	
+
 	// SoundEngine->play2D("sound/EternalGarden.mp3", true);
 
 	return true;
@@ -306,7 +306,7 @@ bool Update() {
 	float currentFrame = (float)glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
-	if(time_flow)
+	if (time_flow)
 		t += deltaTime;
 
 	if (t >= day_duration_sec) {
@@ -330,12 +330,12 @@ bool Update() {
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
 		view = camera.GetViewMatrix();
 		//Camara de espejo1
-		mirror1_camera.Position.x = mirror1_position.x -(camera.Position.x-mirror1_position.x); //Se invierte en x porque este espejo ve a ese eje
+		mirror1_camera.Position.x = mirror1_position.x - (camera.Position.x - mirror1_position.x); //Se invierte en x porque este espejo ve a ese eje
 		mirror1_camera.Position.y = camera.Position.y; //Siempre se conserva el movimiento en Y
 		mirror1_camera.Position.z = -camera.Position.z; //Se conserva el movimiento porque no ve a z
 		mirror1_camera.Front = glm::vec3(-camera.Front.x, camera.Front.y, -camera.Front.z); //Solo se conserva y
 
-		mirror1_projection = glm::perspective(glm::radians(mirror1_camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,glm::distance(mirror1_position,mirror1_camera.Position)+0.3f, 10000.0f);
+		mirror1_projection = glm::perspective(glm::radians(mirror1_camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, glm::distance(mirror1_position, mirror1_camera.Position) + 0.3f, 10000.0f);
 		mirror1_view = mirror1_camera.GetViewMatrix();
 
 	}
@@ -354,7 +354,7 @@ bool Update() {
 		mirror1_view = mirror1_camera.GetViewMatrix();
 	}
 
-	
+
 
 	//Etiquetado de la stencil mask para el espejo 1
 	glStencilFunc(GL_ALWAYS, 1, 0xFF); //Todo fragmento dibujado pasará la prueba
@@ -376,22 +376,22 @@ bool Update() {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, mirror1_position); // translate it down so it's at the center of the scene
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.312f, 0.321f,0.2f));	// it's a bit too big for our scene, so scale it down
+		model = glm::scale(model, glm::vec3(0.312f, 0.321f, 0.2f));	// it's a bit too big for our scene, so scale it down
 		mirrorStencilShader->setMat4("model", model);
 
-		
+
 		mirrorStencilShader->setFloat("show", 1.0f); //Muestra el espejo, nada mas para depura
-		
+
 
 
 		mirror->Draw(*mirrorStencilShader);
 		glUseProgram(0);
 	}
-	
+
 	glClear(GL_COLOR_BUFFER_BIT); //Se elimina el color el plano una vez se ha creado la máscara
 
 	glStencilFunc(GL_ALWAYS, 0, 0xFF);//Todo lo que no sea el espejo se le asigna 0
-	
+
 	//glStencilMask(0x00);
 
 	{
@@ -437,7 +437,7 @@ bool Update() {
 		dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
 		dynamicLightsShader->setFloat("transparency", material01.transparency);
 		dynamicLightsShader->setMat4("reflex", reflex);
-	
+
 		////Carga de animación
 		dynamicLightsShader->setInt("frame", HouseFrame);
 
@@ -476,7 +476,7 @@ bool Update() {
 		//reflex = temp2 * reflex * temp1;
 		dynamicLightsShader->setMat4("reflex", reflex);
 
-			// Configuramos propiedades de fuentes de luz
+		// Configuramos propiedades de fuentes de luz
 		dynamicLightsShader->setInt("numLights", (int)gLights.size());
 		for (size_t i = 0; i < gLights.size(); ++i) {
 			SetLightUniformVec3(dynamicLightsShader, "Position", i, gLights[i].Position);
@@ -494,8 +494,8 @@ bool Update() {
 		dynamicLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
 		dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
 		dynamicLightsShader->setFloat("transparency", material01.transparency);
-		
-	
+
+
 		////Carga de animación
 		dynamicLightsShader->setInt("frame", HouseFrame);
 
@@ -569,15 +569,15 @@ bool Update() {
 
 		sunShader->setMat4("projection", projection);
 		sunShader->setMat4("view", view);
-		
+
 		glm::mat4 model;
 
 		//Movimiento del sol
-		gLights.at(0).Position.x = 400 * cos(glm::radians(360/day_duration_sec*t));
-		gLights.at(0).Position.y = 400 * sin(glm::radians(360/day_duration_sec*t));
+		gLights.at(0).Position.x = 400 * cos(glm::radians(360 / day_duration_sec * t));
+		gLights.at(0).Position.y = 400 * sin(glm::radians(360 / day_duration_sec * t));
 		gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
-		
-		if (t > day_duration_sec/2) { //apaga el sol en la noche
+
+		if (t > day_duration_sec / 2) { //apaga el sol en la noche
 			HouseFrame = 1;
 			gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
 			model = glm::mat4(1.0f);
@@ -585,8 +585,8 @@ bool Update() {
 			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
 			sunShader->setMat4("model", model);
-			
-			if (toggle != 2){
+
+			if (toggle != 2) {
 				vector<std::string> faces = {
 					"textures/cubemap/04/posx.png",
 					"textures/cubemap/04/negx.png",
@@ -622,69 +622,21 @@ bool Update() {
 		}
 
 		//Atardeceres
-		if (t > day_duration_sec/2){ //Anochecer
+		if (t > day_duration_sec / 2) { //Anochecer
 			gLights.at(0).Color = glm::vec4(0.08f, 0.08f, 0.2f, 1.0f);
 
 		}
 		else { //Amanecer, día y atardecer
 			gLights.at(0).Color.x = 0.2f; //Rojo activo todo el día
-			gLights.at(0).Color.y = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
-			gLights.at(0).Color.z = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
+			gLights.at(0).Color.y = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
+			gLights.at(0).Color.z = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
 		}
 		sunShader->setVec4("LightColor", gLights.at(0).Color);
 		SunModel->Draw(*sunShader);
 	}
 	glUseProgram(0);
-	
+
 	{ //Marco Puerta
-	/**/
-		dynamicLightsShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		dynamicLightsShader->setMat4("projection", projection);
-		dynamicLightsShader->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.00f, 1.00f));
-		dynamicLightsShader->setMat4("model", model);
-
-		glm::mat4 reflex = glm::mat4(1.0f);
-
-		// Configuramos propiedades de fuentes de luz
-		dynamicLightsShader->setInt("numLights", (int)gLights.size());
-		for (size_t i = 0; i < gLights.size(); ++i) {
-			SetLightUniformVec3(dynamicLightsShader, "Position", i, gLights[i].Position);
-			SetLightUniformVec3(dynamicLightsShader, "Direction", i, gLights[i].Direction);
-			SetLightUniformVec4(dynamicLightsShader, "Color", i, gLights[i].Color);
-			SetLightUniformVec4(dynamicLightsShader, "Power", i, gLights[i].Power);
-			SetLightUniformInt(dynamicLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
-			SetLightUniformFloat(dynamicLightsShader, "distance", i, gLights[i].distance);
-		}
-
-		dynamicLightsShader->setVec3("eye", camera.Position);
-
-		// Aplicamos propiedades materiales
-		dynamicLightsShader->setVec4("MaterialAmbientColor", material01.ambient);
-		dynamicLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
-		dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
-		dynamicLightsShader->setFloat("transparency", material01.transparency);
-		dynamicLightsShader->setMat4("reflex", reflex);
-
-		////Carga de animación
-		dynamicLightsShader->setInt("frame",0);
-
-		doorframe->Draw(*dynamicLightsShader);
-		glEnable(GL_DEPTH_TEST);
-		glUseProgram(0);
-	}
-
-	{ //Paisaje
 	/**/
 		dynamicLightsShader->use();
 
@@ -727,13 +679,110 @@ bool Update() {
 		////Carga de animación
 		dynamicLightsShader->setInt("frame", 0);
 
-		terreno->Draw(*dynamicLightsShader);
+		doorframe->Draw(*dynamicLightsShader);
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(0);
 	}
 
-
 	{
+		//Puerta
+		dynamicLightsShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		dynamicLightsShader->setMat4("projection", projection);
+		dynamicLightsShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(4.01f, 1.30f, -1.69f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(door_rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		dynamicLightsShader->setMat4("model", model);
+
+		glm::mat4 reflex = glm::mat4(1.0f);
+
+		// Configuramos propiedades de fuentes de luz
+		dynamicLightsShader->setInt("numLights", (int)gLights.size());
+		for (size_t i = 0; i < gLights.size(); ++i) {
+			SetLightUniformVec3(dynamicLightsShader, "Position", i, gLights[i].Position);
+			SetLightUniformVec3(dynamicLightsShader, "Direction", i, gLights[i].Direction);
+			SetLightUniformVec4(dynamicLightsShader, "Color", i, gLights[i].Color);
+			SetLightUniformVec4(dynamicLightsShader, "Power", i, gLights[i].Power);
+			SetLightUniformInt(dynamicLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
+			SetLightUniformFloat(dynamicLightsShader, "distance", i, gLights[i].distance);
+		}
+
+		dynamicLightsShader->setVec3("eye", camera.Position);
+
+		// Aplicamos propiedades materiales
+		dynamicLightsShader->setVec4("MaterialAmbientColor", material01.ambient);
+		dynamicLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
+		dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
+		dynamicLightsShader->setFloat("transparency", material01.transparency);
+		dynamicLightsShader->setMat4("reflex", reflex);
+
+		////Carga de animación
+		dynamicLightsShader->setInt("frame", 0);
+
+		door->Draw(*dynamicLightsShader);
+		glEnable(GL_DEPTH_TEST);
+		glUseProgram(0);
+	}
+		
+	//{ //Paisaje
+	///**/
+	//	dynamicLightsShader->use();
+
+	//	// Activamos para objetos transparentes
+	//	glEnable(GL_BLEND);
+	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//	dynamicLightsShader->setMat4("projection", projection);
+	//	dynamicLightsShader->setMat4("view", view);
+
+	//	// Aplicamos transformaciones del modelo
+	//	glm::mat4 model = glm::mat4(1.0f);
+	//	model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+	//	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//	model = glm::scale(model, glm::vec3(1.0f, 1.00f, 1.00f));
+	//	dynamicLightsShader->setMat4("model", model);
+
+	//	glm::mat4 reflex = glm::mat4(1.0f);
+
+	//	// Configuramos propiedades de fuentes de luz
+	//	dynamicLightsShader->setInt("numLights", (int)gLights.size());
+	//	for (size_t i = 0; i < gLights.size(); ++i) {
+	//		SetLightUniformVec3(dynamicLightsShader, "Position", i, gLights[i].Position);
+	//		SetLightUniformVec3(dynamicLightsShader, "Direction", i, gLights[i].Direction);
+	//		SetLightUniformVec4(dynamicLightsShader, "Color", i, gLights[i].Color);
+	//		SetLightUniformVec4(dynamicLightsShader, "Power", i, gLights[i].Power);
+	//		SetLightUniformInt(dynamicLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
+	//		SetLightUniformFloat(dynamicLightsShader, "distance", i, gLights[i].distance);
+	//	}
+
+	//	dynamicLightsShader->setVec3("eye", camera.Position);
+
+	//	// Aplicamos propiedades materiales
+	//	dynamicLightsShader->setVec4("MaterialAmbientColor", material01.ambient);
+	//	dynamicLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
+	//	dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
+	//	dynamicLightsShader->setFloat("transparency", material01.transparency);
+	//	dynamicLightsShader->setMat4("reflex", reflex);
+
+	//	////Carga de animación
+	//	dynamicLightsShader->setInt("frame", 0);
+
+	//	terreno->Draw(*dynamicLightsShader);
+	//	glEnable(GL_DEPTH_TEST);
+	//	glUseProgram(0);
+	//}
+
+
+	{ //Elemtos cristalinos
 		crystalShader->use();
 
 		// Activamos para objetos transparentes
@@ -767,7 +816,7 @@ bool Update() {
 		crystalShader->setVec3("eye", camera.Position);
 
 		// Aplicamos propiedades materiales
-		crystalShader->setVec4("MaterialAmbientColor", glm::vec4(0.0f,0.0f,0.0f,1.0f));
+		crystalShader->setVec4("MaterialAmbientColor", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 		crystalShader->setVec4("MaterialDiffuseColor", glm::vec4(0.55f, 0.55f, 0.55f, 1.0f));
 		crystalShader->setVec4("MaterialSpecularColor", glm::vec4(0.70f, 0.7f, 0.7f, 1.0f));
 		crystalShader->setFloat("transparency", 0.2f);
@@ -779,10 +828,10 @@ bool Update() {
 		glUseProgram(0);
 	}
 
-	
 
 
-	
+
+
 
 	// Objeto animado 2
 	/*
@@ -798,7 +847,7 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
-		
+
 		model = glm::translate(model, glm::vec3(6.0f, 1.0f, 4.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
@@ -828,7 +877,7 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
-		
+
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
@@ -844,8 +893,8 @@ bool Update() {
 	glUseProgram(0);*/
 
 
-	
-	
+
+
 	// glfw: swap buffers 
 	glfwSwapBuffers(window);
 	glfwPollEvents();
@@ -879,16 +928,15 @@ void processInput(GLFWwindow* window)
 		time_flow = not time_flow;
 
 	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
-		door_offset += 0.01f;
+		if (door_rotation <= 90) door_rotation += 1.0f;
 	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
-		door_offset -= 0.01f;
+		if (door_rotation >= 0) door_rotation -= 1.0f;
 	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
-		door_rotation += 1.f;
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-		door_rotation -= 1.f;
 
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-		mirror1_position.y += 0.01f;
+		if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+
+			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+				mirror1_position.y += 0.01f;
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
 		mirror1_position.y -= 0.01f;
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
@@ -948,7 +996,7 @@ void processInput(GLFWwindow* window)
 		activeCamera = 0;
 	if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS)
 		activeCamera = 1;
-	
+
 }
 
 // glfw: Actualizamos el puerto de vista si hay cambios del tamaño
@@ -969,7 +1017,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	}
 
 	float xoffset = (float)xpos - lastX;
-	float yoffset = lastY - (float)ypos; 
+	float yoffset = lastY - (float)ypos;
 
 	lastX = (float)xpos;
 	lastY = (float)ypos;
