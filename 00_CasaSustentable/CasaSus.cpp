@@ -733,53 +733,53 @@ bool Update() {
 		glUseProgram(0);
 	}
 		
-	//{ //Paisaje
-	///**/
-	//	dynamicLightsShader->use();
+	{ //Paisaje
+	/**/
+		dynamicLightsShader->use();
 
-	//	// Activamos para objetos transparentes
-	//	glEnable(GL_BLEND);
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//	dynamicLightsShader->setMat4("projection", projection);
-	//	dynamicLightsShader->setMat4("view", view);
+		dynamicLightsShader->setMat4("projection", projection);
+		dynamicLightsShader->setMat4("view", view);
 
-	//	// Aplicamos transformaciones del modelo
-	//	glm::mat4 model = glm::mat4(1.0f);
-	//	model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-	//	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	//	model = glm::scale(model, glm::vec3(1.0f, 1.00f, 1.00f));
-	//	dynamicLightsShader->setMat4("model", model);
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.00f, 1.00f));
+		dynamicLightsShader->setMat4("model", model);
 
-	//	glm::mat4 reflex = glm::mat4(1.0f);
+		glm::mat4 reflex = glm::mat4(1.0f);
 
-	//	// Configuramos propiedades de fuentes de luz
-	//	dynamicLightsShader->setInt("numLights", (int)gLights.size());
-	//	for (size_t i = 0; i < gLights.size(); ++i) {
-	//		SetLightUniformVec3(dynamicLightsShader, "Position", i, gLights[i].Position);
-	//		SetLightUniformVec3(dynamicLightsShader, "Direction", i, gLights[i].Direction);
-	//		SetLightUniformVec4(dynamicLightsShader, "Color", i, gLights[i].Color);
-	//		SetLightUniformVec4(dynamicLightsShader, "Power", i, gLights[i].Power);
-	//		SetLightUniformInt(dynamicLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
-	//		SetLightUniformFloat(dynamicLightsShader, "distance", i, gLights[i].distance);
-	//	}
+		// Configuramos propiedades de fuentes de luz
+		dynamicLightsShader->setInt("numLights", (int)gLights.size());
+		for (size_t i = 0; i < gLights.size(); ++i) {
+			SetLightUniformVec3(dynamicLightsShader, "Position", i, gLights[i].Position);
+			SetLightUniformVec3(dynamicLightsShader, "Direction", i, gLights[i].Direction);
+			SetLightUniformVec4(dynamicLightsShader, "Color", i, gLights[i].Color);
+			SetLightUniformVec4(dynamicLightsShader, "Power", i, gLights[i].Power);
+			SetLightUniformInt(dynamicLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
+			SetLightUniformFloat(dynamicLightsShader, "distance", i, gLights[i].distance);
+		}
 
-	//	dynamicLightsShader->setVec3("eye", camera.Position);
+		dynamicLightsShader->setVec3("eye", camera.Position);
 
-	//	// Aplicamos propiedades materiales
-	//	dynamicLightsShader->setVec4("MaterialAmbientColor", material01.ambient);
-	//	dynamicLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
-	//	dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
-	//	dynamicLightsShader->setFloat("transparency", material01.transparency);
-	//	dynamicLightsShader->setMat4("reflex", reflex);
+		// Aplicamos propiedades materiales
+		dynamicLightsShader->setVec4("MaterialAmbientColor", material01.ambient);
+		dynamicLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
+		dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
+		dynamicLightsShader->setFloat("transparency", material01.transparency);
+		dynamicLightsShader->setMat4("reflex", reflex);
 
-	//	////Carga de animación
-	//	dynamicLightsShader->setInt("frame", 0);
+		////Carga de animación
+		dynamicLightsShader->setInt("frame", 0);
 
-	//	terreno->Draw(*dynamicLightsShader);
-	//	glEnable(GL_DEPTH_TEST);
-	//	glUseProgram(0);
-	//}
+		terreno->Draw(*dynamicLightsShader);
+		glEnable(GL_DEPTH_TEST);
+		glUseProgram(0);
+	}
 
 
 	{ //Elemtos cristalinos
