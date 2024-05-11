@@ -108,6 +108,7 @@ Model   *gridMesh;
 Model *SunModel; //Rombo para ver las luces
 Model *mirror; //Un plano que sirve para recortar con el stencil shader
 Model* crystals;
+Model* terreno;
 
 // Modelos animados
 AnimatedModel   *character01, * character02, * character03;
@@ -217,8 +218,10 @@ bool Start() {
 	mirror = new Model("models/mirror.fbx");
 	crystals = new Model("models/Cristales_tex.fbx");
 	doorframe = new Model("models/Doorframe.fbx");
-	character01 = new AnimatedModel("models/personaje2.fbx");
+	terreno = new Model("models/Terreno.fbx");
 
+	character01 = new AnimatedModel("models/personaje2.fbx");
+	
 	// Cubemap
 	vector<std::string> faces
 	{
@@ -535,10 +538,10 @@ bool Update() {
 	}
 	glUseProgram(0);
 
-		//Reseteo del stencil mask
-		glStencilMask(0xFF); //Habilita la edición del buffer
-		glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve el mappeo de 0 a todo
-		glEnable(GL_DEPTH_TEST);
+	//Reseteo del stencil mask
+	glStencilMask(0xFF); //Habilita la edición del buffer
+	glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve el mappeo de 0 a todo
+	glEnable(GL_DEPTH_TEST);
 
 	{ //Dibujo del sol
 		sunShader->use();
@@ -677,6 +680,54 @@ bool Update() {
 		dynamicLightsShader->setInt("frame",0);
 
 		doorframe->Draw(*dynamicLightsShader);
+		glEnable(GL_DEPTH_TEST);
+		glUseProgram(0);
+	}
+
+	{ //Paisaje
+	/**/
+		dynamicLightsShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		dynamicLightsShader->setMat4("projection", projection);
+		dynamicLightsShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.00f, 1.00f));
+		dynamicLightsShader->setMat4("model", model);
+
+		glm::mat4 reflex = glm::mat4(1.0f);
+
+		// Configuramos propiedades de fuentes de luz
+		dynamicLightsShader->setInt("numLights", (int)gLights.size());
+		for (size_t i = 0; i < gLights.size(); ++i) {
+			SetLightUniformVec3(dynamicLightsShader, "Position", i, gLights[i].Position);
+			SetLightUniformVec3(dynamicLightsShader, "Direction", i, gLights[i].Direction);
+			SetLightUniformVec4(dynamicLightsShader, "Color", i, gLights[i].Color);
+			SetLightUniformVec4(dynamicLightsShader, "Power", i, gLights[i].Power);
+			SetLightUniformInt(dynamicLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
+			SetLightUniformFloat(dynamicLightsShader, "distance", i, gLights[i].distance);
+		}
+
+		dynamicLightsShader->setVec3("eye", camera.Position);
+
+		// Aplicamos propiedades materiales
+		dynamicLightsShader->setVec4("MaterialAmbientColor", material01.ambient);
+		dynamicLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
+		dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
+		dynamicLightsShader->setFloat("transparency", material01.transparency);
+		dynamicLightsShader->setMat4("reflex", reflex);
+
+		////Carga de animación
+		dynamicLightsShader->setInt("frame", 0);
+
+		terreno->Draw(*dynamicLightsShader);
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(0);
 	}
