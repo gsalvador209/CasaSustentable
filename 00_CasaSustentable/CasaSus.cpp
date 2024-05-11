@@ -70,7 +70,11 @@ float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
 float t = 0.0f;
 <<<<<<< HEAD
+<<<<<<< HEAD
 float day_duration_sec = 300.0f; //Los segundos aproximados que dura un día
+=======
+float day_duration_sec = 50.0f; //Los segundos aproximados que duara un día
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 =======
 float day_duration_sec = 50.0f; //Los segundos aproximados que duara un día
 >>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
@@ -204,7 +208,11 @@ bool Start() {
 
 	//cout << "Casa" << endl;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	house = new Model("models/CasaAnim.fbx");
+=======
+	house = new Model("models/Techo_cristal.fbx");
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 =======
 	house = new Model("models/Techo_cristal.fbx");
 >>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
@@ -393,6 +401,9 @@ bool Update() {
 =======
 	/**/
 	{
+<<<<<<< HEAD
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
+=======
 >>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 		mLightsShader->use();
 
@@ -404,7 +415,10 @@ bool Update() {
 		mLightsShader->setMat4("view", view);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 		//if (t > day_duration_sec / 2) { //apaga el sol en la noche
 		//	if (toggle != 2) {
 		//		house = new Model("models/Cas5.fbx");
@@ -419,6 +433,9 @@ bool Update() {
 		//		cout << "Noche" << endl;
 		//	}
 		//}
+<<<<<<< HEAD
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
+=======
 >>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 
 		// Aplicamos transformaciones del modelo
@@ -449,7 +466,10 @@ bool Update() {
 		mLightsShader->setVec4("MaterialSpecularColor", material01.specular);
 		mLightsShader->setFloat("transparency", material01.transparency);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		mLightsShader->setMat4("reflex", reflex);
+=======
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 =======
 >>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 		
