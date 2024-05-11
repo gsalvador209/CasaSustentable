@@ -16,3 +16,4 @@
 *.shm
 *.db-wal
 *.db-shm
+*.psd

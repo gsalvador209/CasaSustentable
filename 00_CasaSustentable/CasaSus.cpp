@@ -48,6 +48,12 @@ GLFWwindow* window;
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
+// Definición de espejos
+glm::vec3 mirror1_position(-13.87f, 2.24f, -0.022f);
+//glm::mat3 mirror1_direction(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+Camera mirror1_camera(mirror1_position, glm::vec3(1.0f, 0.0f, 0.0f));  //Ve a X positivo
+
+
 // Definición de cámara (posición en XYZ)
 Camera camera(glm::vec3(0.0f, 2.0f, 10.0f));
 Camera camera3rd(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -63,9 +69,14 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
 float t = 0.0f;
-float day_duration_sec = 100.0f; //Los segundos aproximados que duara un día
+<<<<<<< HEAD
+float day_duration_sec = 300.0f; //Los segundos aproximados que dura un día
+=======
+float day_duration_sec = 50.0f; //Los segundos aproximados que duara un día
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 bool time_flow = true;
 int toggle = 0;
+int HouseFrame = 0;
 
 glm::vec3 position(0.0f,0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
@@ -84,6 +95,7 @@ Shader *cubemapShader;
 Shader *dynamicShader;
 Shader* sunShader; //Auxiliar para ver la ubicación de luces
 Shader* dynamicSky; //Para el cambio del color del cielo
+Shader* mirrorStencilShader;
 
 // Carga la información del modelo
 Model	*house;
@@ -91,7 +103,8 @@ Model   *door;
 Model   *moon;
 Model *cultivos;
 Model   *gridMesh;
-Model* SunModel; //Rombo para ver las luces
+Model *SunModel; //Rombo para ver las luces
+Model *mirror; //Un plano que sirve para recortar con el stencil shader
 
 // Modelos animados
 AnimatedModel   *character01, * character02, * character03;
@@ -169,15 +182,19 @@ bool Start() {
 
 	// Activación de buffer de profundidad
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_STENCIL_TEST); //Habilita el stencil buffer
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  //Remplaza por ref solo cuando pasa el test
+
 
 	// Compilación y enlace de shaders
-	mLightsShader = new Shader("shaders/11_PhongShaderMultLights.vs", "shaders/11_PhongShaderMultLights.fs");
+	mLightsShader = new Shader("shaders/11_PhongCasa.vs", "shaders/11_PhongCasa.fs");
 	proceduralShader = new Shader("shaders/12_ProceduralAnimation.vs", "shaders/12_ProceduralAnimation.fs");
 	wavesShader = new Shader("shaders/13_wavesAnimation.vs", "shaders/13_wavesAnimation.fs");
 	cubemapShader = new Shader("shaders/10_vertex_cubemap.vs", "shaders/10_fragment_cubemap.fs");
 	dynamicShader = new Shader("shaders/10_vertex_skinning-IT.vs", "shaders/10_fragment_skinning-IT.fs");
 	sunShader = new Shader("shaders/10_vertex_simple.vs", "shaders/Dynamic_sun.fs");
 	dynamicSky = new Shader("shaders/10_vertex_cubemap.vs", "shaders/Dynamic_sky.fs");
+	mirrorStencilShader = new Shader("shaders/24_mirror.vs", "shaders/24_mirror.fs");
 
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -185,11 +202,18 @@ bool Start() {
 	// Dibujar en malla de alambre
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	house = new Model("models/Casa05Noche.fbx");
+	//cout << "Casa" << endl;
+<<<<<<< HEAD
+	house = new Model("models/CasaAnim.fbx");
+=======
+	house = new Model("models/Techo_cristal.fbx");
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
+	//cout << "Puerta" << endl;
 	door = new Model("models/IllumModels/Door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
 	cultivos = new Model("models/Cultivos2.fbx");
+	mirror = new Model("models/mirror.fbx");
 
 	// Cubemap
 	vector<std::string> faces
@@ -286,58 +310,125 @@ bool Update() {
 
 	// Renderizado R - G - B - A
 	glClearColor(0.01f, 0.01f, 0.01f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 
 	glm::mat4 projection;
 	glm::mat4 view;
+	glm::mat4 mirror1_projection;
+	glm::mat4 mirror1_view;
 
 	if (activeCamera) {
 		// Cámara en primera persona
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
 		view = camera.GetViewMatrix();
+		//Camara de espejo1
+		mirror1_camera.Position.x = -camera.Position.x; //Se invierte en x porque este espejo ve a ese eje
+		mirror1_camera.Position.y = camera.Position.y; //Siempre se conserva el movimiento en Y
+		mirror1_camera.Position.z = camera.Position.z; //Se conserva el movimiento porque no ve a z
+		mirror1_camera.Front = glm::vec3(-camera.Front.x, camera.Front.y, -camera.Front.z); //Solo se conserva y
+
+		mirror1_projection = glm::perspective(glm::radians(mirror1_camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
+		mirror1_view = mirror1_camera.GetViewMatrix();
+
 	}
 	else {
 		// cámara en tercera persona
 		projection = glm::perspective(glm::radians(camera3rd.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
 		view = camera3rd.GetViewMatrix();
+
+		//Camara de espejo1
+		mirror1_camera.Position.x = -camera3rd.Position.x; //Se invierte en x porque este espejo ve a ese eje
+		mirror1_camera.Position.y = camera3rd.Position.y; //Siempre se conserva el movimiento en Y
+		mirror1_camera.Position.z = camera3rd.Position.z; //Se conserva el movimiento porque no ve a z
+		mirror1_camera.Front = glm::vec3(-camera3rd.Front.x, camera3rd.Front.y, -camera3rd.Front.z); //Solo se conserva y
+
+		mirror1_projection = glm::perspective(glm::radians(mirror1_camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
+		mirror1_view = mirror1_camera.GetViewMatrix();
 	}
+
+	//Etiquetado de la stencil mask para el espejo 1
+	glStencilFunc(GL_ALWAYS, 1, 0xFF); //Todo fragmento dibujado pasará la prueba
+	glStencilMask(0xFF); //Habilita la edición del buffer
+	{
+		mirrorStencilShader->use(); //Inicializa el dibujado del espejo
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplica la camara para que la mascara existe en la perspectiva del usuario
+		mirrorStencilShader->setMat4("projection", projection);
+		mirrorStencilShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, mirror1_position); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.312f, 0.321f,0.2f));	// it's a bit too big for our scene, so scale it down
+		mirrorStencilShader->setMat4("model", model);
+
+		
+		mirrorStencilShader->setFloat("show", 1.0f); //Muestra el espejo, nada mas para depura
+		
+
+
+		mirror->Draw(*mirrorStencilShader);
+		glUseProgram(0);
+	}
+	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Se elimina el color el plano una vez se ha creado la máscara
+
+	glStencilFunc(GL_ALWAYS, 0, 0xFF);//Todo lo que no sea el espejo se le asigna 0
+
 
 	// Cubemap (fondo)
 	{
 		mainCubeMap->drawCubeMap(*dynamicSky, projection, view, gLights.at(0).Color);
 	}
+<<<<<<< HEAD
+	
+	
+	
+	{ //Dibujo de la casa
+=======
 	/**/
-	 {
+	{
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 		mLightsShader->use();
 
 		// Activamos para objetos transparentes
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		mLightsShader->setMat4("projection", projection);
 		mLightsShader->setMat4("view", view);
 
-		if (t > day_duration_sec / 2) { //apaga el sol en la noche
-			if (toggle != 2) {
-				house = new Model("models/Cas5.fbx");
-				toggle = 2;
-				cout << "Dia" << endl;
-			}
-		}
-		else {
-			if (toggle != 0) {
-				house = new Model("models/Cas05Noche.fbx");
-				toggle = 0;
-				cout << "Noche" << endl;
-			}
-		}
+<<<<<<< HEAD
+=======
+		//if (t > day_duration_sec / 2) { //apaga el sol en la noche
+		//	if (toggle != 2) {
+		//		house = new Model("models/Cas5.fbx");
+		//		toggle = 2;
+		//		cout << "Dia" << endl;
+		//	}
+		//}
+		//else {
+		//	if (toggle != 0) {
+		//		house = new Model("models/Cas05Noche.fbx");
+		//		toggle = 0;
+		//		cout << "Noche" << endl;
+		//	}
+		//}
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.00f, 1.00f));
 		mLightsShader->setMat4("model", model);
+
+		glm::mat4 reflex = glm::mat4(1.0f);
 
 		// Configuramos propiedades de fuentes de luz
 		mLightsShader->setInt("numLights", (int)gLights.size());
@@ -349,7 +440,7 @@ bool Update() {
 			SetLightUniformInt(mLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
 			SetLightUniformFloat(mLightsShader, "distance", i, gLights[i].distance);
 		}
-		
+
 		mLightsShader->setVec3("eye", camera.Position);
 
 		// Aplicamos propiedades materiales
@@ -357,31 +448,27 @@ bool Update() {
 		mLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
 		mLightsShader->setVec4("MaterialSpecularColor", material01.specular);
 		mLightsShader->setFloat("transparency", material01.transparency);
+<<<<<<< HEAD
+		mLightsShader->setMat4("reflex", reflex);
+=======
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
+		
+		//Carga de animación
+		mLightsShader->setInt("frame", HouseFrame);
 
 		house->Draw(*mLightsShader);
+		//Ahora solo va a dibujar lo que cumpla la máscara
+		glStencilFunc(GL_EQUAL, 1, 0xFF);
+		//Bloquea la máscara para que no se modifique
+		glStencilMask(0x00);
 
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, glm::vec3(0.0f, 2.0f, 0.0f)); // translate it down so it's at the center of the scene
-		//model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 
-		//earth->Draw(*mLightsShader);
-		// model = glm::mat4(1.0f);
 
-		// Actividad 5.1
-		// Efecto de puerta corrediza
-		// model = glm::translate(model, glm::vec3(0.418f + door_offset, 0.0f, 6.75f));
-		
-		// Efecto de puerta con bisagra
-		// model = glm::rotate(model, glm::radians(door_rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		// model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		// mLightsShader->setMat4("model", model);
-		// door->Draw(*mLightsShader);
 	}
 
 	glUseProgram(0);
 
+	
 	//{ //Dibujo del rombo de luz
 	//	sunShader->use();
 
@@ -403,20 +490,71 @@ bool Update() {
 	//}
 	//glUseProgram(0);
 
-	{//Animación del sol
-		sunShader->use();
+	//{//Animación del sol
+	//	sunShader->use();
 
-		sunShader->setMat4("projection", projection);
-		sunShader->setMat4("view", view);
-		
-		glm::mat4 model;
+	//	sunShader->setMat4("projection", projection);
+	//	sunShader->setMat4("view", view);
+	//	
+	//	glm::mat4 model;
 
+<<<<<<< HEAD
+	//	//Movimiento del sol
+	//	gLights.at(0).Position.x = 400 * cos(glm::radians(360/day_duration_sec*t));
+	//	gLights.at(0).Position.y = 400 * sin(glm::radians(360/day_duration_sec*t));
+	//	gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
+	//	
+	//	if (t > day_duration_sec/2) { //apaga el sol en la noche
+	//		HouseFrame = 1;
+	//		gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
+	//		model = glm::mat4(1.0f);
+	//		model = glm::translate(model, gLights[0].Position);
+	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//		model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
+	//		sunShader->setMat4("model", model);
+	//		
+	//		if (toggle != 2){
+	//			vector<std::string> faces = {
+	//				"textures/cubemap/04/posx.png",
+	//				"textures/cubemap/04/negx.png",
+	//				"textures/cubemap/04/posy.png",
+	//				"textures/cubemap/04/negy.png",
+	//				"textures/cubemap/04/posz.png",
+	//				"textures/cubemap/04/negz.png"
+	//			};
+	//			changeCubeMapFaces(faces);
+	//			toggle = 2;
+	//		}
+
+	//	}
+	//	else {
+	//		HouseFrame = 0;
+	//		model = glm::mat4(1.0f);
+	//		model = glm::translate(model, gLights[0].Position);
+	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+	//		sunShader->setMat4("model", model);
+	//		if (toggle != 0) {
+	//			vector<std::string> faces = {
+	//				"textures/cubemap/03/posx.png",
+	//				"textures/cubemap/03/negx.png",
+	//				"textures/cubemap/03/posy.png",
+	//				"textures/cubemap/03/negy.png",
+	//				"textures/cubemap/03/posz.png",
+	//				"textures/cubemap/03/negz.png"
+	//			};
+	//			changeCubeMapFaces(faces);
+	//			toggle = 0;
+	//		}
+	//	}
+=======
 		//Movimiento del sol
 		gLights.at(0).Position.x = 400 * cos(glm::radians(360/day_duration_sec*t));
 		gLights.at(0).Position.y = 400 * sin(glm::radians(360/day_duration_sec*t));
 		gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
 		
 		if (t > day_duration_sec/2) { //apaga el sol en la noche
+			HouseFrame = 1;
 			gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, gLights[0].Position);
@@ -439,6 +577,7 @@ bool Update() {
 
 		}
 		else {
+			HouseFrame = 0;
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, gLights[0].Position);
 			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -457,21 +596,22 @@ bool Update() {
 				toggle = 0;
 			}
 		}
+>>>>>>> 26d686a0a79414208a73fb5606feeffee0753617
 
-		//Atardeceres
-		if (t > day_duration_sec/2){ //Anochecer
-			gLights.at(0).Color = glm::vec4(0.08f, 0.08f, 0.2f, 1.0f);
+	//	//Atardeceres
+	//	if (t > day_duration_sec/2){ //Anochecer
+	//		gLights.at(0).Color = glm::vec4(0.08f, 0.08f, 0.2f, 1.0f);
 
-		}
-		else { //Amanecer, día y atardecer
-			gLights.at(0).Color.x = 0.2f; //Rojo activo todo el día
-			gLights.at(0).Color.y = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
-			gLights.at(0).Color.z = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
-		}
-		sunShader->setVec4("LightColor", gLights.at(0).Color);
-		SunModel->Draw(*sunShader);
-	}
-	glUseProgram(0);
+	//	}
+	//	else { //Amanecer, día y atardecer
+	//		gLights.at(0).Color.x = 0.2f; //Rojo activo todo el día
+	//		gLights.at(0).Color.y = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
+	//		gLights.at(0).Color.z = 0.2f*pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
+	//	}
+	//	sunShader->setVec4("LightColor", gLights.at(0).Color);
+	//	SunModel->Draw(*sunShader);
+	//}
+	//glUseProgram(0);
 	
 	// Actividad 5.2
 	/*
@@ -672,14 +812,14 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
 		door_rotation -= 1.f;
 
-	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-		gLights.at(0).Position.x += 0.1f;
-	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-		gLights.at(0).Position.x -= 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+		mirror1_position.y += 0.01f;
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+		mirror1_position.y -= 0.01f;
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
-		gLights.at(0).Position.y += 0.1f;
+		mirror1_position.z -= 0.01f;
 	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
-		gLights.at(0).Position.y -= 0.1f;
+		mirror1_position.z += 0.01f;
 
 	// Character movement
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
