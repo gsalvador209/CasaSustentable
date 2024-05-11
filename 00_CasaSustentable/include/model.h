@@ -158,7 +158,7 @@ private:
         vector<Texture> textures;
 
 		// cout << "NumVertices: " << mesh->mNumVertices << endl;
-
+		
         // Walk through each of the mesh's vertices
         for(unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
@@ -271,7 +271,10 @@ private:
                 indices.push_back(face.mIndices[j]);
         }
         // process materials
+		//cout << "Materials: " << scene->mNumMaterials << endl;
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];    
+		
+
         // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
         // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
         // Same applies to other texture as the following list summarizes:
@@ -478,6 +481,7 @@ private:
     vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName)
     {
         vector<Texture> textures;
+		//cout << mat->GetTextureCount(type) << endl;
         for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
         {
             aiString str;

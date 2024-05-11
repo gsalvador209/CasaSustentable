@@ -63,9 +63,10 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
 float t = 0.0f;
-float day_duration_sec = 100.0f; //Los segundos aproximados que duara un día
+float day_duration_sec = 50.0f; //Los segundos aproximados que duara un día
 bool time_flow = true;
 int toggle = 0;
+int HouseFrame = 0;
 
 glm::vec3 position(0.0f,0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
@@ -171,7 +172,7 @@ bool Start() {
 	glEnable(GL_DEPTH_TEST);
 
 	// Compilación y enlace de shaders
-	mLightsShader = new Shader("shaders/11_PhongShaderMultLights.vs", "shaders/11_PhongShaderMultLights.fs");
+	mLightsShader = new Shader("shaders/11_PhongCasa.vs", "shaders/11_PhongCasa.fs");
 	proceduralShader = new Shader("shaders/12_ProceduralAnimation.vs", "shaders/12_ProceduralAnimation.fs");
 	wavesShader = new Shader("shaders/13_wavesAnimation.vs", "shaders/13_wavesAnimation.fs");
 	cubemapShader = new Shader("shaders/10_vertex_cubemap.vs", "shaders/10_fragment_cubemap.fs");
@@ -185,7 +186,9 @@ bool Start() {
 	// Dibujar en malla de alambre
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	house = new Model("models/Casa05Noche.fbx");
+	//cout << "Casa" << endl;
+	house = new Model("models/Techo_cristal.fbx");
+	//cout << "Puerta" << endl;
 	door = new Model("models/IllumModels/Door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
@@ -307,30 +310,30 @@ bool Update() {
 		mainCubeMap->drawCubeMap(*dynamicSky, projection, view, gLights.at(0).Color);
 	}
 	/**/
-	 {
+	{
 		mLightsShader->use();
 
 		// Activamos para objetos transparentes
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		mLightsShader->setMat4("projection", projection);
 		mLightsShader->setMat4("view", view);
 
-		if (t > day_duration_sec / 2) { //apaga el sol en la noche
-			if (toggle != 2) {
-				house = new Model("models/Cas5.fbx");
-				toggle = 2;
-				cout << "Dia" << endl;
-			}
-		}
-		else {
-			if (toggle != 0) {
-				house = new Model("models/Cas05Noche.fbx");
-				toggle = 0;
-				cout << "Noche" << endl;
-			}
-		}
+		//if (t > day_duration_sec / 2) { //apaga el sol en la noche
+		//	if (toggle != 2) {
+		//		house = new Model("models/Cas5.fbx");
+		//		toggle = 2;
+		//		cout << "Dia" << endl;
+		//	}
+		//}
+		//else {
+		//	if (toggle != 0) {
+		//		house = new Model("models/Cas05Noche.fbx");
+		//		toggle = 0;
+		//		cout << "Noche" << endl;
+		//	}
+		//}
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
@@ -349,7 +352,7 @@ bool Update() {
 			SetLightUniformInt(mLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
 			SetLightUniformFloat(mLightsShader, "distance", i, gLights[i].distance);
 		}
-		
+
 		mLightsShader->setVec3("eye", camera.Position);
 
 		// Aplicamos propiedades materiales
@@ -357,6 +360,9 @@ bool Update() {
 		mLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
 		mLightsShader->setVec4("MaterialSpecularColor", material01.specular);
 		mLightsShader->setFloat("transparency", material01.transparency);
+		
+		//Carga de animación
+		mLightsShader->setInt("frame", HouseFrame);
 
 		house->Draw(*mLightsShader);
 
@@ -417,6 +423,7 @@ bool Update() {
 		gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
 		
 		if (t > day_duration_sec/2) { //apaga el sol en la noche
+			HouseFrame = 1;
 			gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, gLights[0].Position);
@@ -439,6 +446,7 @@ bool Update() {
 
 		}
 		else {
+			HouseFrame = 0;
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, gLights[0].Position);
 			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
