@@ -3,22 +3,13 @@
   "WorkspaceRootPath": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\ProyectoFinal\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCrystal.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCrystal.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B41DBD3B-9A60-4CC8-8CA4-CEBA9A555BC5}|ProyectoFinal.vcxproj|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\cg\\05_ModelLoading\\05_ModelLoading.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCasa.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE\\GNQF3AM1\\09-Animation[1].cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\10_vertex_simple.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\10_fragment_simple.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -28,86 +19,45 @@
       "DocumentGroups": [
         {
           "DockedWidth": 204,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "09-Animation[1].cpp",
-              "DocumentMoniker": "C:\\Users\\Salvador\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE\\GNQF3AM1\\09-Animation[1].cpp",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE\\GNQF3AM1\\09-Animation[1].cpp",
-              "ToolTip": "C:\\Users\\Salvador\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE\\GNQF3AM1\\09-Animation[1].cpp [Solo lectura]",
-              "RelativeToolTip": "..\\..\\..\\..\\..\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE\\GNQF3AM1\\09-Animation[1].cpp [Solo lectura]",
-              "ViewState": "AQIAACsCAAAAAAAAAAAAAMMBAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-05-11T09:02:57.144Z",
-              "EditorCaption": " [Solo lectura]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "11_PhongCasa.vs",
-              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCasa.vs",
-              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\11_PhongCasa.vs",
-              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCasa.vs",
-              "RelativeToolTip": "..\\..\\bin\\shaders\\11_PhongCasa.vs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAAAAAA",
+              "DocumentIndex": 1,
+              "Title": "11_PhongCrystal.vs",
+              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCrystal.vs",
+              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\11_PhongCrystal.vs",
+              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCrystal.vs",
+              "RelativeToolTip": "..\\..\\bin\\shaders\\11_PhongCrystal.vs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-05-11T04:37:08.04Z",
+              "WhenOpened": "2024-05-11T10:16:54.105Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "11_PhongCrystal.fs",
+              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCrystal.fs",
+              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\11_PhongCrystal.fs",
+              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCrystal.fs",
+              "RelativeToolTip": "..\\..\\bin\\shaders\\11_PhongCrystal.fs",
+              "ViewState": "AQIAADwAAAAAAAAAAAAAAEgAAAAQAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-05-11T10:16:53.792Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "CasaSus.cpp",
               "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
               "RelativeDocumentMoniker": "..\\CasaSus.cpp",
               "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
               "RelativeToolTip": "..\\CasaSus.cpp",
-              "ViewState": "AQIAADkAAAAAAAAAAAAvwEYAAAAbAAAA",
+              "ViewState": "AQIAAMMAAAAAAAAAAAAAANQAAAArAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-05-10T20:42:16.468Z",
-              "EditorCaption": ""
-            }
-          ]
-        },
-        {
-          "DockedWidth": 196,
-          "SelectedChildIndex": 2,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "10_fragment_simple.fs",
-              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\10_fragment_simple.fs",
-              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\10_fragment_simple.fs",
-              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\10_fragment_simple.fs",
-              "RelativeToolTip": "..\\..\\bin\\shaders\\10_fragment_simple.fs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-05-11T04:39:53.523Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "10_vertex_simple.vs",
-              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\10_vertex_simple.vs",
-              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\10_vertex_simple.vs",
-              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\10_vertex_simple.vs",
-              "RelativeToolTip": "..\\..\\bin\\shaders\\10_vertex_simple.vs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-05-11T04:39:38.012Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "05_ModelLoading.cpp",
-              "DocumentMoniker": "D:\\cg\\05_ModelLoading\\05_ModelLoading.cpp",
-              "ToolTip": "D:\\cg\\05_ModelLoading\\05_ModelLoading.cpp",
-              "ViewState": "AQIAANYAAAAAAAAAAAAvwLUAAAAoAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-05-11T02:44:11.3Z",
               "EditorCaption": ""
             }
           ]

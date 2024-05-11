@@ -91,6 +91,7 @@ Shader *dynamicShader;
 Shader* sunShader; //Auxiliar para ver la ubicación de luces
 Shader* dynamicSky; //Para el cambio del color del cielo
 Shader* mirrorStencilShader;
+Shader* crystalShader; 
 
 // Carga la información del modelo
 Model	*house;
@@ -100,6 +101,7 @@ Model *cultivos;
 Model   *gridMesh;
 Model *SunModel; //Rombo para ver las luces
 Model *mirror; //Un plano que sirve para recortar con el stencil shader
+Model* crystals;
 
 // Modelos animados
 AnimatedModel   *character01, * character02, * character03;
@@ -190,6 +192,8 @@ bool Start() {
 	sunShader = new Shader("shaders/10_vertex_simple.vs", "shaders/Dynamic_sun.fs");
 	dynamicSky = new Shader("shaders/10_vertex_cubemap.vs", "shaders/Dynamic_sky.fs");
 	mirrorStencilShader = new Shader("shaders/24_mirror.vs", "shaders/24_mirror.fs");
+	crystalShader = new Shader("shaders/11_PhongCrystal.vs","shaders/11_PhongCrystal.fs");
+
 
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -206,6 +210,7 @@ bool Start() {
 	gridMesh = new Model("models/IllumModels/grid.fbx");
 	cultivos = new Model("models/Cultivos2.fbx");
 	mirror = new Model("models/mirror.fbx");
+	crystals = new Model("models/Cristales_tex.fbx");
 
 	// Cubemap
 	vector<std::string> faces
@@ -496,10 +501,6 @@ bool Update() {
 	
 
 
-	
-
-
-
 	{ //Dibujo del sol
 		sunShader->use();
 
@@ -593,6 +594,52 @@ bool Update() {
 	}
 	glUseProgram(0);
 	
+	{//
+		crystalShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		crystalShader->setMat4("projection", projection);
+		crystalShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		crystalShader->setMat4("model", model);
+
+		glm::mat4 reflex = glm::mat4(1.0f);
+		crystalShader->setMat4("reflex", reflex);
+
+		// Configuramos propiedades de fuentes de luz
+		crystalShader->setInt("numLights", (int)gLights.size());
+		for (size_t i = 0; i < gLights.size(); ++i) {
+			SetLightUniformVec3(crystalShader, "Position", i, gLights[i].Position);
+			SetLightUniformVec3(crystalShader, "Direction", i, gLights[i].Direction);
+			SetLightUniformVec4(crystalShader, "Color", i, gLights[i].Color);
+			SetLightUniformVec4(crystalShader, "Power", i, gLights[i].Power);
+			SetLightUniformInt(crystalShader, "alphaIndex", i, gLights[i].alphaIndex);
+			SetLightUniformFloat(crystalShader, "distance", i, gLights[i].distance);
+		}
+
+		crystalShader->setVec3("eye", camera.Position);
+
+		// Aplicamos propiedades materiales
+		crystalShader->setVec4("MaterialAmbientColor", glm::vec4(0.0f,0.0f,0.0f,1.0f));
+		crystalShader->setVec4("MaterialDiffuseColor", glm::vec4(0.55f, 0.55f, 0.55f, 1.0f));
+		crystalShader->setVec4("MaterialSpecularColor", glm::vec4(0.70f, 0.7f, 0.7f, 1.0f));
+		crystalShader->setFloat("transparency", 0.2f);
+
+
+
+		crystals->Draw(*crystalShader);
+		glEnable(GL_DEPTH_TEST);
+		glUseProgram(0);
+	}
+
 	// Actividad 5.2
 	/*
 	{
