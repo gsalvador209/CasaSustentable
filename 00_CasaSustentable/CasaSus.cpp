@@ -130,7 +130,7 @@ float proceduralTime = 0.0f;
 float wavesTime = 0.0f;
 
 // Audio
-ISoundEngine* SoundEngine = createIrrKlangDevice();
+ISoundEngine *SoundEngine = createIrrKlangDevice();
 
 // selección de cámara
 bool    activeCamera = 1; // activamos la primera cámara
