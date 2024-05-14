@@ -90,7 +90,7 @@ float	  posicion_mono_y = 1.0f;
 Shader* dynamicLightsShader;
 Shader* proceduralShader;
 Shader* wavesShader;
-
+Shader* solidColorShader;
 Shader* cubemapShader;
 Shader* dynamicShader;
 Shader* sunShader; //Auxiliar para ver la ubicación de luces
@@ -162,7 +162,7 @@ bool Start() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Creación de la ventana con GLFW
-	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Casa sustentable", NULL, NULL);
+	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Casa sustentable",NULL, NULL); //Tercer parametro  glfwGetPrimaryMonitor() para fullscreen
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -173,10 +173,8 @@ bool Start() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-
-	// Ocultar el cursor mientras se rota la escena
-	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	
 	// glad: Cargar todos los apuntadores
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -200,6 +198,7 @@ bool Start() {
 	dynamicSky = new Shader("shaders/10_vertex_cubemap.vs", "shaders/Dynamic_sky.fs");
 	mirrorStencilShader = new Shader("shaders/24_mirror.vs", "shaders/24_mirror.fs");
 	crystalShader = new Shader("shaders/11_PhongCrystal.vs", "shaders/11_PhongCrystal.fs");
+	//solidColorShader = new Shader("shaders/01-simple.vs", "shaders/01-simple.fs");
 
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -398,6 +397,59 @@ bool Update() {
 		mainCubeMap->drawCubeMap(*dynamicSky, projection, view, gLights.at(0).Color);
 	}
 
+	{ //Paisaje
+	/**/
+		dynamicLightsShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		//glDisable(GL_DEPTH_TEST);
+		//glDepthMask(GL_FALSE);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
+		//glBlendEquation(GL_FUNC_SUBTRACT);
+		
+		dynamicLightsShader->setMat4("projection", projection);
+		dynamicLightsShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.00f, 1.00f));
+		dynamicLightsShader->setMat4("model", model);
+
+		glm::mat4 reflex = glm::mat4(1.0f);
+
+		// Configuramos propiedades de fuentes de luz
+		dynamicLightsShader->setInt("numLights", (int)gLights.size());
+		for (size_t i = 0; i < gLights.size(); ++i) {
+			SetLightUniformVec3(dynamicLightsShader, "Position", i, gLights[i].Position);
+			SetLightUniformVec3(dynamicLightsShader, "Direction", i, gLights[i].Direction);
+			SetLightUniformVec4(dynamicLightsShader, "Color", i, gLights[i].Color);
+			SetLightUniformVec4(dynamicLightsShader, "Power", i, gLights[i].Power);
+			SetLightUniformInt(dynamicLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
+			SetLightUniformFloat(dynamicLightsShader, "distance", i, gLights[i].distance);
+		}
+
+		dynamicLightsShader->setVec3("eye", camera.Position);
+
+		// Aplicamos propiedades materiales
+		dynamicLightsShader->setVec4("MaterialAmbientColor", material01.ambient);
+		dynamicLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
+		dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
+		dynamicLightsShader->setFloat("transparency", material01.transparency);
+		dynamicLightsShader->setMat4("reflex", reflex);
+
+		////Carga de animación
+		dynamicLightsShader->setInt("frame", 0);
+
+		terreno->Draw(*dynamicLightsShader);
+		glEnable(GL_DEPTH_TEST);
+		//glDepthMask(GL_TRUE);
+		glUseProgram(0);
+
+	}
+
 	{ //Dibujo de la casa
 	/**/
 		dynamicLightsShader->use();
@@ -405,7 +457,7 @@ bool Update() {
 		// Activamos para objetos transparentes
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+		
 		dynamicLightsShader->setMat4("projection", projection);
 		dynamicLightsShader->setMat4("view", view);
 
@@ -733,53 +785,7 @@ bool Update() {
 		glUseProgram(0);
 	}
 		
-	{ //Paisaje
-	/**/
-		dynamicLightsShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		dynamicLightsShader->setMat4("projection", projection);
-		dynamicLightsShader->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.00f, 1.00f));
-		dynamicLightsShader->setMat4("model", model);
-
-		glm::mat4 reflex = glm::mat4(1.0f);
-
-		// Configuramos propiedades de fuentes de luz
-		dynamicLightsShader->setInt("numLights", (int)gLights.size());
-		for (size_t i = 0; i < gLights.size(); ++i) {
-			SetLightUniformVec3(dynamicLightsShader, "Position", i, gLights[i].Position);
-			SetLightUniformVec3(dynamicLightsShader, "Direction", i, gLights[i].Direction);
-			SetLightUniformVec4(dynamicLightsShader, "Color", i, gLights[i].Color);
-			SetLightUniformVec4(dynamicLightsShader, "Power", i, gLights[i].Power);
-			SetLightUniformInt(dynamicLightsShader, "alphaIndex", i, gLights[i].alphaIndex);
-			SetLightUniformFloat(dynamicLightsShader, "distance", i, gLights[i].distance);
-		}
-
-		dynamicLightsShader->setVec3("eye", camera.Position);
-
-		// Aplicamos propiedades materiales
-		dynamicLightsShader->setVec4("MaterialAmbientColor", material01.ambient);
-		dynamicLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
-		dynamicLightsShader->setVec4("MaterialSpecularColor", material01.specular);
-		dynamicLightsShader->setFloat("transparency", material01.transparency);
-		dynamicLightsShader->setMat4("reflex", reflex);
-
-		////Carga de animación
-		dynamicLightsShader->setInt("frame", 0);
-
-		terreno->Draw(*dynamicLightsShader);
-		glEnable(GL_DEPTH_TEST);
-		glUseProgram(0);
-	}
+	
 
 
 	{ //Elemtos cristalinos
@@ -910,6 +916,9 @@ void changeCubeMapFaces(vector<std::string> faces) {
 // Procesamos entradas del teclado
 void processInput(GLFWwindow* window)
 {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

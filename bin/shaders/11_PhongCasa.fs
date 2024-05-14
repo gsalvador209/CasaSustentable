@@ -71,7 +71,10 @@ void main()
     ex_color.a = transparency;
     coordsT.y += 0.5f * frame;
     vec4 texel = texture(texture_diffuse1, coordsT);
-
+    
+    if(texel.a < 0.2) {
+        discard;
+    }
     if(frame == 1){
         FragColor = texel;
     }else{
