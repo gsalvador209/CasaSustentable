@@ -1,15 +1,18 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\00_CasaSustentable\\ProyectoFinal\\",
+  "WorkspaceRootPath": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\ProyectoFinal\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B41DBD3B-9A60-4CC8-8CA4-CEBA9A555BC5}|ProyectoFinal.vcxproj|C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{B41DBD3B-9A60-4CC8-8CA4-CEBA9A555BC5}|ProyectoFinal.vcxproj|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\bin\\shaders\\14_outline.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCasa.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\bin\\shaders\\14_outline.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCasa.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\24_mirror.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 204,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -31,41 +34,54 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "14_outline.vs",
-              "DocumentMoniker": "C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\bin\\shaders\\14_outline.vs",
-              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\14_outline.vs",
-              "ToolTip": "C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\bin\\shaders\\14_outline.vs",
-              "RelativeToolTip": "..\\..\\bin\\shaders\\14_outline.vs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAALAAAA",
+              "DocumentIndex": 3,
+              "Title": "24_mirror.fs",
+              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\24_mirror.fs",
+              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\24_mirror.fs",
+              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\24_mirror.fs",
+              "RelativeToolTip": "..\\..\\bin\\shaders\\24_mirror.fs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAeAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-05-14T23:00:03.328Z",
+              "WhenOpened": "2024-05-15T06:36:06.078Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "11_PhongCasa.vs",
+              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCasa.vs",
+              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\11_PhongCasa.vs",
+              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCasa.vs",
+              "RelativeToolTip": "..\\..\\bin\\shaders\\11_PhongCasa.vs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-05-15T05:33:42.381Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "14_outline.fs",
-              "DocumentMoniker": "C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\bin\\shaders\\14_outline.fs",
-              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\14_outline.fs",
-              "ToolTip": "C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\bin\\shaders\\14_outline.fs",
-              "RelativeToolTip": "..\\..\\bin\\shaders\\14_outline.fs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Title": "11_PhongCasa.fs",
+              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCasa.fs",
+              "RelativeDocumentMoniker": "..\\..\\bin\\shaders\\11_PhongCasa.fs",
+              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\bin\\shaders\\11_PhongCasa.fs",
+              "RelativeToolTip": "..\\..\\bin\\shaders\\11_PhongCasa.fs",
+              "ViewState": "AQIAAB4AAAAAAAAAAAAAAC4AAABNAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-05-14T22:59:59.971Z",
+              "WhenOpened": "2024-05-15T05:33:41.521Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "CasaSus.cpp",
-              "DocumentMoniker": "C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
+              "DocumentMoniker": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
               "RelativeDocumentMoniker": "..\\CasaSus.cpp",
-              "ToolTip": "C:\\Users\\dbarr\\source\\repos\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
+              "ToolTip": "C:\\Users\\Salvador\\Documents\\Proyecto cg\\CasaSustentable\\00_CasaSustentable\\CasaSus.cpp",
               "RelativeToolTip": "..\\CasaSus.cpp",
-              "ViewState": "AQIAAAQEAAAAAAAAAAAAAJoDAAAAAAAA",
+              "ViewState": "AQIAALwCAAAAAAAAAAAAALUBAAATAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-05-14T22:13:53.11Z",
+              "WhenOpened": "2024-05-15T04:27:11.768Z",
               "EditorCaption": ""
             }
           ]

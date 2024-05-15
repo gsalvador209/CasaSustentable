@@ -10,5 +10,5 @@ uniform float show;
 
 void main()
 {    
-    vec4 FragColor = vec4(1.0,1.0,1.0,show);
+    vec4 FragColor = vec4(1.0f,1.0f,1.0f,1.0f);
 }
