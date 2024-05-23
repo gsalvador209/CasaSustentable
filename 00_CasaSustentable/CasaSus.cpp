@@ -43,6 +43,10 @@ void processInput(GLFWwindow* window);
 //void dynamicLightDraw(Model, glm::mat4, glm::mat4, glm::vec3, glm::vec3, float, glm::vec3, int);
 void dynamicLightDraw(Model* model, glm::mat4 projection, glm::mat4 view, glm::vec3 translate = glm::vec3(0.0f, 0.0f, 0.0f), \
 	glm::vec3 rotate = glm::vec3(1.0f, 0.0f, 0.0f), float degree = 180.0f, glm::vec3 scale = glm::vec3(1.0f), int t = 0, glm::vec3 reflex = glm::vec3(1.0f,1.0f,1.0f));
+void outlineDraw(Model* model, glm::mat4 projection, glm::mat4 view, glm::vec3 translate = glm::vec3(0.0f, 0.0f, 0.0f), \
+	glm::vec3 rotate = glm::vec3(1.0f, 0.0f, 0.0f), float degree = 180.0f, glm::vec3 scale = glm::vec3(1.0f), float outline = 1.08);
+void textDraw(Model * texto, Camera camera, glm::mat4 projection, glm::mat4 view, glm::vec3 scale = glm::vec3(1.0f), int ID_text = 0.0f);
+
 // Gobals
 GLFWwindow* window;
 
@@ -73,7 +77,12 @@ float t = 0.0f;
 float day_duration_sec = 120.0f; //Los segundos aproximados que dura un día
 bool time_flow = true;
 int toggle = 0;
+
 int HouseFrame = 0;
+
+//Variables de control de texto
+GLint valorLeido;
+bool tongleText = false;
 
 glm::vec3 position(0.0f, 0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
@@ -97,20 +106,26 @@ Shader* cubemapShader;
 Shader* dynamicShader;
 Shader* sunShader; //Auxiliar para ver la ubicación de luces
 Shader* dynamicSky; //Para el cambio del color del cielo
-Shader* mirrorStencilShader;
-Shader* crystalShader;
-
+Shader* mirrorStencilShader; //"Renderiza" el plano del espejo
+Shader* crystalShader; //Para todos los cristales de la escena
+Shader* outlineShader; //Para bordes
+Shader* textShader;
 // Carga la información del modelo
 Model* house;
 Model* doorframe;
 Model* door;
 Model* moon;
 Model* cultivos;
+Model* cultivos_outline;
 Model* gridMesh;
 Model* SunModel; //Rombo para ver las luces
 Model* mirror; //Un plano que sirve para recortar con el stencil shader
 Model* crystals;
 Model* terreno;
+Model* tinaco;
+Model* texto;
+
+
 
 // Modelos animados
 //AnimatedModel* character01, * character02, * character03;
@@ -175,7 +190,7 @@ bool Start() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	// glad: Cargar todos los apuntadores
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -204,8 +219,10 @@ bool Start() {
 	dynamicSky = new Shader("shaders/10_vertex_cubemap.vs", "shaders/Dynamic_sky.fs");
 	mirrorStencilShader = new Shader("shaders/24_mirror.vs", "shaders/24_mirror.fs");
 	crystalShader = new Shader("shaders/11_PhongCrystal.vs", "shaders/11_PhongCrystal.fs");
+	outlineShader = new Shader("shaders/14_outline.vs", "shaders/14_outline.fs");
+	textShader = new Shader("shaders/16_text.vs", "shaders/16_text.fs");
 	//solidColorShader = new Shader("shaders/01-simple.vs", "shaders/01-simple.fs");
-
+	
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
 
@@ -214,19 +231,20 @@ bool Start() {
 
 	//cout << "Casa" << endl;
 
-	house = new Model("models/CasaAnim.fbx");
+	//house = new Model("models/CasaAnim.fbx");
 	//cout << "Puerta" << endl;
 	door = new Model("models/door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
-	gridMesh = new Model("models/IllumModels/grid.fbx");
-	cultivos = new Model("models/Cultivos2.fbx");
+	//gridMesh = new Model("models/IllumModels/grid.fbx");
+	cultivos = new Model("models/CultivosHidro.fbx");
+	cultivos_outline = new Model("models/Cultivos_outline.fbx");
 	mirror = new Model("models/mirror.fbx");
-	crystals = new Model("models/Cristales_tex.fbx");
-	doorframe = new Model("models/Doorframe.fbx");
-	terreno = new Model("models/Terreno.fbx");
-
+	//crystals = new Model("models/Cristales_tex.fbx");
+	//doorframe = new Model("models/Doorframe.fbx");
+	//terreno = new Model("models/Terreno.fbx");
+	//tinaco = new Model("models/Tinaco.fbx");
 	//character01 = new AnimatedModel("models/personaje2.fbx");
-	
+	texto = new Model("models/Texto.fbx");
 	// Cubemap
 	vector<std::string> faces
 	{
@@ -306,7 +324,7 @@ bool Update() {
 	processInput(window);
 
 	// Renderizado R - G - B - A
-	glClearColor(0.01f, 0.01f, 0.01f, 0.0f);
+	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 
@@ -347,60 +365,60 @@ bool Update() {
 	
 	//glClear(GL_COLOR_BUFFER_BIT); //Se elimina el color el plano una vez se ha creado la máscara
 
+	//
+	//glStencilMask(0x00);//El cube map no afecta al buffer
+	//{
+	//	//glStencilFunc(GL_ALWAYS, 0, 0xFF);//Asigna 0 al cubemap
+	//	mainCubeMap->drawCubeMap(*dynamicSky, projection, view, gLights.at(0).Color); //Stencil index = 0
+	//}
+	//glStencilMask(0xFF);//El cube map no afecta al buffer
+
+	//glStencilFunc(GL_ALWAYS, 5, 0xFF);
+	//dynamicLightDraw(terreno, projection, view);
+
+	//glStencilFunc(GL_ALWAYS, 10, 0xFF);
+	//dynamicLightDraw(house, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f,glm::vec3(1.0f),HouseFrame);
 	
-	glStencilMask(0x00);//El cube map no afecta al buffer
-	{
-		//glStencilFunc(GL_ALWAYS, 0, 0xFF);//Asigna 0 al cubemap
-		mainCubeMap->drawCubeMap(*dynamicSky, projection, view, gLights.at(0).Color); //Stencil index = 0
-	}
-	glStencilMask(0xFF);//El cube map no afecta al buffer
-
-	glStencilFunc(GL_ALWAYS, 5, 0xFF);
-	dynamicLightDraw(terreno, projection, view);
-
-	glStencilFunc(GL_ALWAYS, 10, 0xFF);
-	dynamicLightDraw(house, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f,glm::vec3(1.0f),HouseFrame);
-
 
 	//El espejo debe hacerse después de la casa por un Z-index mayor
 
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); //Solo remplazará si no hay ningun que obstruya
-	glStencilFunc(GL_ALWAYS, 1, 0xFF); //Todo fragmento dibujado pasará la prueba
-	{
-		mirrorStencilShader->use(); //Inicializa el dibujado del espejo
-		// Activamos para objetos transparentes
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); //Solo remplazará si no hay ningun que obstruya
+	//glStencilFunc(GL_ALWAYS, 1, 0xFF); //Todo fragmento dibujado pasará la prueba
+	//{
+	//	mirrorStencilShader->use(); //Inicializa el dibujado del espejo
+	//	// Activamos para objetos transparentes
+	//	//glEnable(GL_BLEND);
+	//	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		// Aplica la camara para que la mascara existe en la perspectiva del usuario
-		mirrorStencilShader->setMat4("projection", projection);
-		mirrorStencilShader->setMat4("view", view);
+	//	// Aplica la camara para que la mascara existe en la perspectiva del usuario
+	//	mirrorStencilShader->setMat4("projection", projection);
+	//	mirrorStencilShader->setMat4("view", view);
 
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, mirror1_position); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.312f, 0.321f, 0.2f));	// it's a bit too big for our scene, so scale it down
-		mirrorStencilShader->setMat4("model", model);
-
-
-		mirrorStencilShader->setFloat("show", 1.0f); //Muestra el espejo, nada mas para depura
+	//	// Aplicamos transformaciones del modelo
+	//	glm::mat4 model = glm::mat4(1.0f);
+	//	model = glm::translate(model, mirror1_position); // translate it down so it's at the center of the scene
+	//	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//	model = glm::scale(model, glm::vec3(0.312f, 0.321f, 0.2f));	// it's a bit too big for our scene, so scale it down
+	//	mirrorStencilShader->setMat4("model", model);
 
 
+	//	mirrorStencilShader->setFloat("show", 1.0f); //Muestra el espejo, nada mas para depura
 
-		mirror->Draw(*mirrorStencilShader);
-		glUseProgram(0);
-	}
 
-	//Ahora solo va a dibujar en donde se cumpla la máscara
-	glStencilFunc(GL_EQUAL, 1, 0xFF);
-	//Bloquea la máscara para que no se modifique
-	glStencilMask(0x00);
+
+	//	mirror->Draw(*mirrorStencilShader);
+	//	glUseProgram(0);
+	//}
+
+	////Ahora solo va a dibujar en donde se cumpla la máscara
+	//glStencilFunc(GL_EQUAL, 1, 0xFF);
+	////Bloquea la máscara para que no se modifique
+	//glStencilMask(0x00);
 
 	//Reflejo de la casa
-	dynamicLightDraw(house, mirror1_projection, mirror1_view, glm::vec3(0.0f), glm::vec3(1.0f,0.0f,0.0f),\
+	/*dynamicLightDraw(house, mirror1_projection, mirror1_view, glm::vec3(0.0f), glm::vec3(1.0f,0.0f,0.0f),\
 		-90.0f, glm::vec3(1.0f, 1.0f, 1.0f),HouseFrame,glm::vec3(1.0f,1.0f,-1.0f));
-
+*/
 
 
 	// Reflejo del personaje
@@ -437,103 +455,99 @@ bool Update() {
 	//}
 	//glUseProgram(0);
 
-	//Reseteo del stencil mask
-	glStencilMask(0xFF); //Habilita la edición del buffer
-	glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve el mappeo de 0 a todo
-	glEnable(GL_DEPTH_TEST);
+	
+	//{ //Dibujo del sol
+	//	sunShader->use();
 
-	{ //Dibujo del sol
-		sunShader->use();
+	//	sunShader->setMat4("projection", projection);
+	//	sunShader->setMat4("view", view);
 
-		sunShader->setMat4("projection", projection);
-		sunShader->setMat4("view", view);
+	//	glm::mat4 model;
 
-		glm::mat4 model;
+	//	for (size_t i = 0; i < gLights.size(); ++i) {
+	//		model = glm::mat4(1.0f);
+	//		model = glm::translate(model, gLights[i].Position);
+	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+	//		sunShader->setMat4("model", model);
 
-		for (size_t i = 0; i < gLights.size(); ++i) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, gLights[i].Position);
-			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-			sunShader->setMat4("model", model);
+	//		SunModel->Draw(*sunShader);
+	//	}
 
-			SunModel->Draw(*sunShader);
-		}
+	//}
+	//glUseProgram(0);
 
-	}
-	glUseProgram(0);
+	//{//Animación del sol
+	//	sunShader->use();
 
-	{//Animación del sol
-		sunShader->use();
+	//	sunShader->setMat4("projection", projection);
+	//	sunShader->setMat4("view", view);
 
-		sunShader->setMat4("projection", projection);
-		sunShader->setMat4("view", view);
+	//	glm::mat4 model;
 
-		glm::mat4 model;
+	//	//Movimiento del sol
+	//	gLights.at(0).Position.x = 400 * cos(glm::radians(360 / day_duration_sec * t));
+	//	gLights.at(0).Position.y = 400 * sin(glm::radians(360 / day_duration_sec * t));
+	//	gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
 
-		//Movimiento del sol
-		gLights.at(0).Position.x = 400 * cos(glm::radians(360 / day_duration_sec * t));
-		gLights.at(0).Position.y = 400 * sin(glm::radians(360 / day_duration_sec * t));
-		gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
+	//	if (t > day_duration_sec / 2) { //apaga el sol en la noche
+	//		HouseFrame = 1;
+	//		gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
+	//		model = glm::mat4(1.0f);
+	//		model = glm::translate(model, gLights[0].Position);
+	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//		model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
+	//		sunShader->setMat4("model", model);
 
-		if (t > day_duration_sec / 2) { //apaga el sol en la noche
-			HouseFrame = 1;
-			gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, gLights[0].Position);
-			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
-			sunShader->setMat4("model", model);
+	//		if (toggle != 2) {
+	//			vector<std::string> faces = {
+	//				"textures/cubemap/04/posx.png",
+	//				"textures/cubemap/04/negx.png",
+	//				"textures/cubemap/04/posy.png",
+	//				"textures/cubemap/04/negy.png",
+	//				"textures/cubemap/04/posz.png",
+	//				"textures/cubemap/04/negz.png"
+	//			};
+	//			changeCubeMapFaces(faces);
+	//			toggle = 2;
+	//		}
 
-			if (toggle != 2) {
-				vector<std::string> faces = {
-					"textures/cubemap/04/posx.png",
-					"textures/cubemap/04/negx.png",
-					"textures/cubemap/04/posy.png",
-					"textures/cubemap/04/negy.png",
-					"textures/cubemap/04/posz.png",
-					"textures/cubemap/04/negz.png"
-				};
-				changeCubeMapFaces(faces);
-				toggle = 2;
-			}
+	//	}
+	//	else {
+	//		HouseFrame = 0;
+	//		model = glm::mat4(1.0f);
+	//		model = glm::translate(model, gLights[0].Position);
+	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+	//		sunShader->setMat4("model", model);
+	//		if (toggle != 0) {
+	//			vector<std::string> faces = {
+	//				"textures/cubemap/03/posx.png",
+	//				"textures/cubemap/03/negx.png",
+	//				"textures/cubemap/03/posy.png",
+	//				"textures/cubemap/03/negy.png",
+	//				"textures/cubemap/03/posz.png",
+	//				"textures/cubemap/03/negz.png"
+	//			};
+	//			changeCubeMapFaces(faces);
+	//			toggle = 0;
+	//		}
+	//	}
 
-		}
-		else {
-			HouseFrame = 0;
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, gLights[0].Position);
-			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-			sunShader->setMat4("model", model);
-			if (toggle != 0) {
-				vector<std::string> faces = {
-					"textures/cubemap/03/posx.png",
-					"textures/cubemap/03/negx.png",
-					"textures/cubemap/03/posy.png",
-					"textures/cubemap/03/negy.png",
-					"textures/cubemap/03/posz.png",
-					"textures/cubemap/03/negz.png"
-				};
-				changeCubeMapFaces(faces);
-				toggle = 0;
-			}
-		}
+	//	//Atardeceres
+	//	if (t > day_duration_sec / 2) { //Anochecer
+	//		gLights.at(0).Color = glm::vec4(0.08f, 0.08f, 0.2f, 1.0f);
 
-		//Atardeceres
-		if (t > day_duration_sec / 2) { //Anochecer
-			gLights.at(0).Color = glm::vec4(0.08f, 0.08f, 0.2f, 1.0f);
-
-		}
-		else { //Amanecer, día y atardecer
-			gLights.at(0).Color.x = 0.2f; //Rojo activo todo el día
-			gLights.at(0).Color.y = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
-			gLights.at(0).Color.z = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
-		}
-		sunShader->setVec4("LightColor", gLights.at(0).Color);
-		SunModel->Draw(*sunShader);
-	}
-	glUseProgram(0);
+	//	}
+	//	else { //Amanecer, día y atardecer
+	//		gLights.at(0).Color.x = 0.2f; //Rojo activo todo el día
+	//		gLights.at(0).Color.y = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
+	//		gLights.at(0).Color.z = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
+	//	}
+	//	sunShader->setVec4("LightColor", gLights.at(0).Color);
+	//	SunModel->Draw(*sunShader);
+	//}
+	//glUseProgram(0);
 
 	//{ //Marco Puerta
 	//
@@ -583,6 +597,12 @@ bool Update() {
 	//	glUseProgram(0);
 	//}
 
+	glStencilFunc(GL_ALWAYS, 100, 0xFF);
+	glStencilMask(0xFF);
+	dynamicLightDraw(cultivos, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
+	
+	
+	
 	//{
 	//	//Puerta
 	//	dynamicLightsShader->use();
@@ -750,17 +770,88 @@ bool Update() {
 	/*glGetIntegerv(GL_VIEWPORT,pantalla);
 	cout << "Pantalla: " << pantalla[0] << " " << pantalla[1] << " " << pantalla[2] << " " << pantalla[3] << endl;
 	width*/
+	//Se obtiene el ángulo de vista de la cámara
+
+	/*projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 1000.0f);*/
+
+	//outlineDraw(moon, projection, view, glm::vec3(3.0f*sin(theta)*cos(phi) + camera.Position.x, 3.0f*sin(phi), -3.0f * cos(theta) * cos(phi) + camera.Position.z), glm::vec3(1.0f), 0.0f, glm::vec3(0.4));
+	
+
+	//outlineDraw(texto, projection,view, glm::vec3(5.0f *camera.Front.x+camera.Position.x, 5.0f*camera.Front.y+camera.Position.y,5.0f*camera.Front.z+camera.Position.z), glm::vec3(1.0f,0.0f,0.0f), -90.0f, glm::vec3(0.4));
+	//outlineDraw(texto, projection, view);
+	
+		//{
+	//	outlin->use(); //Inicializa el dibujado del espejo
+	//	// Activamos para objetos transparentes
+	//	//glEnable(GL_BLEND);
+	//	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+	//	//Se obtiene el ángulo de vista de la cámara
+	//	if (camera.Front.z == 0.0f)
+	//		camera.Front.z = 0.0001f;
+	//	float rotation = glm::atan(camera.Front.x / -camera.Front.z);
+	//	if (camera.Front.z > 0)
+	//		rotation = rotation + 3.1415;
+
+
+
+	//	// Aplica la camara para que la mascara existe en la perspectiva del usuario
+	//	mirrorStencilShader->setMat4("projection", projection);
+	//	mirrorStencilShader->setMat4("view", view);
+
+	//	cout << "x:" << cos(rotation) + camera.Position.x << endl;
+
+	//	cout << "z" << sin(rotation) + camera.Position.z << endl;
+	//	cout << endl;
+	//	// Aplicamos transformaciones del modelo
+	//	glm::mat4 model = glm::mat4(1.0f);
+	//	model = glm::translate(model, glm::vec3(0.0f, 1.3f, 0.0f)); // translate it down so it's at the center of the scene
+	//	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//	model = glm::scale(model, glm::vec3(0.312f, 0.321f, 0.6f));	// it's a bit too big for our scene, so scale it down
+	//	mirrorStencilShader->setMat4("model", model);
+
+
+	//	mirrorStencilShader->setFloat("show", 1.0f); //Muestra el espejo, nada mas para depura
+
+
+	//	moon->Draw(*mirrorStencilShader);
+	//	glUseProgram(0);
+	//}
+
+
 	GLint *valor;
-	GLint valorLeido;
 	valor = &valorLeido;
 	GLint center_x = (GLint)(SCR_WIDTH / 2.0);
 	GLint center_y = (GLint)(SCR_HEIGHT / 2.0);
 	GLsizei GLwidth = (GLsizei)(SCR_WIDTH);
 	GLsizei GLheight = (GLsizei)(SCR_HEIGHT);
 	glReadPixels(center_x, center_y, 1, 1, GL_STENCIL_INDEX, GL_INT, valor);
-	cout << "Valor escaneado: " << valorLeido << endl;
+	
+	glStencilFunc(GL_NOTEQUAL, 100, 0xFF);
+	glStencilMask(0x00);
+	if (valorLeido == 100) {
+		outlineDraw(cultivos_outline, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
+		if (tongleText) {
+			glStencilMask(0xFF); //Habilita la edición del buffer
+			glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve el mappeo de 0 a todo
+			glClear(GL_DEPTH_BUFFER_BIT);
+			textDraw(texto, camera, projection, view);
+		}
+		//if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS||tongleText==true) {
+
+		//}
+
+		//cout << "Valor escaneado: " << valorLeido << endl;
+	}
+	else {
+		tongleText = false;
+	}
 
 	//Dibujar cursos
+	//Reseteo del stencil mask
+	glStencilMask(0xFF); //Habilita la edición del buffer
+	glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve el mappeo de 0 a todo
+	glEnable(GL_DEPTH_TEST);
 
 	// glfw: swap buffers 
 	glfwSwapBuffers(window);
@@ -768,6 +859,8 @@ bool Update() {
 
 	return true;
 }
+
+
 
 void changeCubeMapFaces(vector<std::string> faces) {
 	//mainCubeMap = new CubeMap();
@@ -801,9 +894,15 @@ void processInput(GLFWwindow* window)
 		if (door_rotation <= 90) door_rotation += 1.0f;
 	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
 		if (door_rotation >= 0) door_rotation -= 1.0f;
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+//	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
 
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+		//cout << valorLeido << endl;
+		if (valorLeido >= 100) {
+			tongleText = true;
+		}
+
+	}
 
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
 		mirror1_position.x += 0.01f;
@@ -901,6 +1000,50 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	camera.ProcessMouseScroll((float)yoffset);
 }
 
+void outlineDraw(Model * model, glm::mat4 projection, glm::mat4 view, glm::vec3 translate, \
+	glm::vec3 rotate, float degree, glm::vec3 scale,float outline){
+	outlineShader->use();
+	outlineShader->setMat4("projection", projection);
+	outlineShader->setMat4("view", view);
+
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	modelMatrix = glm::translate(modelMatrix, translate);
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(degree), rotate);
+	modelMatrix = glm::scale(modelMatrix, scale);
+	outlineShader->setMat4("model", modelMatrix);
+	outlineShader->setFloat("outlining", outline);
+	model->Draw(*outlineShader);
+	
+	glUseProgram(0);
+}
+
+void textDraw(Model * texto, Camera camera, glm::mat4 projection, glm::mat4 view, glm::vec3 scale, int ID_text){
+	textShader->use();
+	textShader->setMat4("projection",projection);
+	textShader->setMat4("view", view);
+
+	//float theta = atan(camera.Front.z / camera.Front.x);
+	if (camera.Front.x == 0.0f)
+		camera.Front.x = 0.0001f;
+	float theta = glm::atan(abs(camera.Front.z / camera.Front.x));
+	if (camera.Front.x > 0)
+		theta = theta + 3.1415;
+
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(5.0f * camera.Front.x + camera.Position.x, 5.0f * camera.Front.y + camera.Position.y, 5.0f * camera.Front.z + camera.Position.z))*glm::rotate(modelMatrix, -glm::radians(camera.Yaw), glm::vec3(0.0f,1.0f,0.0f))*glm::rotate(modelMatrix, glm::radians(camera.Pitch), glm::vec3(0.0f, 0.0f, 1.0f))* glm::rotate(modelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//*
+
+	
+	//modelMatrix = glm::rotate(modelMatrix,theta, glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.7));
+	textShader->setMat4("model", modelMatrix);
+	texto->Draw(*textShader);
+	
+	glUseProgram(0);
+
+}
+
 void dynamicLightDraw(Model *model, glm::mat4 projection, glm::mat4 view, glm::vec3 translate , \
 	glm::vec3 rotate , float degree , glm::vec3 scale , int t, glm::vec3 reflex) {
 
@@ -947,3 +1090,4 @@ void dynamicLightDraw(Model *model, glm::mat4 projection, glm::mat4 view, glm::v
 	model->Draw(*dynamicLightsShader);
 	glUseProgram(0);
 }
+
