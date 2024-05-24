@@ -60,7 +60,7 @@ Camera mirror1_camera(mirror1_position, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f)
 
 
 // Definición de cámara (posición en XYZ)
-Camera camera(glm::vec3(0.0f, 2.0f, 10.0f));
+Camera camera(glm::vec3(0.0f, 2.0f, 0.0f));
 Camera camera3rd(glm::vec3(0.0f, 0.0f, 0.0f));
 
 // Controladores para el movimiento del mouse
@@ -74,14 +74,18 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
 float t = 0.0f;
-float day_duration_sec = 120.0f; //Los segundos aproximados que dura un día
+float day_duration_sec = 10.0f; //Los segundos aproximados que dura un día
 bool time_flow = true;
 int toggle = 0;
 int HouseFrame = 0;
 
+
+
 //Variables de control de texto
 GLint valorLeido;
 bool textEnable = false;
+bool tutorial = true;
+
 
 //Control de entrada
 int pastPRESS = 0;
@@ -119,8 +123,8 @@ Model* house;
 Model* doorframe;
 Model* door;
 Model* moon;
-Model* cultivos;
-Model* cultivos_outline;
+//Model* cultivos;
+//Model* cultivos_outline;
 Model* gridMesh;
 Model* SunModel; //Rombo para ver las luces
 Model* mirror; //Un plano que sirve para recortar con el stencil shader
@@ -129,7 +133,10 @@ Model* terreno;
 Model* tinaco;
 Model* texto;
 
-
+//Interactives
+vector<Model*> interactives;
+vector<Model*> outlines;
+int MAX_INTERACTIVES = 4;
 
 // Modelos animados
 //AnimatedModel* character01, * character02, * character03;
@@ -194,7 +201,7 @@ bool Start() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-//	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	// glad: Cargar todos los apuntadores
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -202,6 +209,10 @@ bool Start() {
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return false;
 	}
+
+	camera.Position = glm::vec3(10.778f,2.0f,-1.98852);
+	camera.Yaw = -180;
+	camera.ProcessMouseMovement(0.0f,0.0f);
 
 	// Activación de buffer de profundidad
 	glEnable(GL_DEPTH_TEST);
@@ -227,6 +238,22 @@ bool Start() {
 	textShader = new Shader("shaders/16_text.vs", "shaders/16_text.fs");
 	//solidColorShader = new Shader("shaders/01-simple.vs", "shaders/01-simple.fs");
 	
+
+	//Importación de modelos interactivos
+	for (int i=100; i <= MAX_INTERACTIVES+100; i++) {
+		string path = "models/Interactives/int_";
+		path = path + std::to_string(i) + ".fbx";
+		Model *temp = new Model(path);
+		interactives.push_back(temp);
+	}
+
+	for (int i = 100; i <= MAX_INTERACTIVES + 100; i++) {
+		string path = "models/Interactives/intOut_";
+		path = path + std::to_string(i) + ".fbx";
+		Model* temp = new Model(path);
+		outlines.push_back(temp);
+	}
+
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
 
@@ -235,13 +262,13 @@ bool Start() {
 
 	//cout << "Casa" << endl;
 
-	//house = new Model("models/CasaAnim.fbx");
+	house = new Model("models/Casa_sin_interactive.fbx");
 	//cout << "Puerta" << endl;
 	door = new Model("models/door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	//gridMesh = new Model("models/IllumModels/grid.fbx");
-	cultivos = new Model("models/CultivosHidro.fbx");
-	cultivos_outline = new Model("models/Cultivos_outline.fbx");
+	//cultivos = new Model("models/CultivosHidro.fbx");
+	//cultivos_outline = new Model("models/Cultivos_outline.fbx");
 	mirror = new Model("models/mirror.fbx");
 	//crystals = new Model("models/Cristales_tex.fbx");
 	//doorframe = new Model("models/Doorframe.fbx");
@@ -325,6 +352,7 @@ bool Update() {
 		t = 0;
 	}
 	// Procesa la entrada del teclado o mouse
+	
 	processInput(window);
 
 	// Renderizado R - G - B - A
@@ -381,7 +409,7 @@ bool Update() {
 	//dynamicLightDraw(terreno, projection, view);
 
 	//glStencilFunc(GL_ALWAYS, 10, 0xFF);
-	//dynamicLightDraw(house, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f,glm::vec3(1.0f),HouseFrame);
+	dynamicLightDraw(house, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f,glm::vec3(1.0f),HouseFrame);
 	
 
 	//El espejo debe hacerse después de la casa por un Z-index mayor
@@ -460,98 +488,98 @@ bool Update() {
 	//glUseProgram(0);
 
 	
-	//{ //Dibujo del sol
-	//	sunShader->use();
+	{ //Dibujo del sol
+		sunShader->use();
 
-	//	sunShader->setMat4("projection", projection);
-	//	sunShader->setMat4("view", view);
+		sunShader->setMat4("projection", projection);
+		sunShader->setMat4("view", view);
 
-	//	glm::mat4 model;
+		glm::mat4 model;
 
-	//	for (size_t i = 0; i < gLights.size(); ++i) {
-	//		model = glm::mat4(1.0f);
-	//		model = glm::translate(model, gLights[i].Position);
-	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	//		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-	//		sunShader->setMat4("model", model);
+		for (size_t i = 0; i < gLights.size(); ++i) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, gLights[i].Position);
+			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+			sunShader->setMat4("model", model);
 
-	//		SunModel->Draw(*sunShader);
-	//	}
+			SunModel->Draw(*sunShader);
+		}
 
-	//}
-	//glUseProgram(0);
+	}
+	glUseProgram(0);
 
-	//{//Animación del sol
-	//	sunShader->use();
+	{//Animación del sol y transcurso del tiempo
+		sunShader->use();
 
-	//	sunShader->setMat4("projection", projection);
-	//	sunShader->setMat4("view", view);
+		sunShader->setMat4("projection", projection);
+		sunShader->setMat4("view", view);
 
-	//	glm::mat4 model;
+		glm::mat4 model;
 
-	//	//Movimiento del sol
-	//	gLights.at(0).Position.x = 400 * cos(glm::radians(360 / day_duration_sec * t));
-	//	gLights.at(0).Position.y = 400 * sin(glm::radians(360 / day_duration_sec * t));
-	//	gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
+		//Movimiento del sol
+		gLights.at(0).Position.x = 400 * cos(glm::radians(360 / day_duration_sec * t));
+		gLights.at(0).Position.y = 400 * sin(glm::radians(360 / day_duration_sec * t));
+		gLights.at(0).Power = glm::vec4(100.0f, 100.0f, 100.0f, 1.0f);
 
-	//	if (t > day_duration_sec / 2) { //apaga el sol en la noche
-	//		HouseFrame = 1;
-	//		gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
-	//		model = glm::mat4(1.0f);
-	//		model = glm::translate(model, gLights[0].Position);
-	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	//		model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
-	//		sunShader->setMat4("model", model);
+		if (t > day_duration_sec / 2) { //apaga el sol en la noche
+			HouseFrame = 1;
+			gLights.at(0).Position = glm::vec4(0.0f, 300.0f, 0.0f, 1.0f);
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, gLights[0].Position);
+			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
+			sunShader->setMat4("model", model);
 
-	//		if (toggle != 2) {
-	//			vector<std::string> faces = {
-	//				"textures/cubemap/04/posx.png",
-	//				"textures/cubemap/04/negx.png",
-	//				"textures/cubemap/04/posy.png",
-	//				"textures/cubemap/04/negy.png",
-	//				"textures/cubemap/04/posz.png",
-	//				"textures/cubemap/04/negz.png"
-	//			};
-	//			changeCubeMapFaces(faces);
-	//			toggle = 2;
-	//		}
+			if (toggle != 2) {
+				vector<std::string> faces = {
+					"textures/cubemap/04/posx.png",
+					"textures/cubemap/04/negx.png",
+					"textures/cubemap/04/posy.png",
+					"textures/cubemap/04/negy.png",
+					"textures/cubemap/04/posz.png",
+					"textures/cubemap/04/negz.png"
+				};
+				changeCubeMapFaces(faces);
+				toggle = 2;
+			}
 
-	//	}
-	//	else {
-	//		HouseFrame = 0;
-	//		model = glm::mat4(1.0f);
-	//		model = glm::translate(model, gLights[0].Position);
-	//		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	//		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-	//		sunShader->setMat4("model", model);
-	//		if (toggle != 0) {
-	//			vector<std::string> faces = {
-	//				"textures/cubemap/03/posx.png",
-	//				"textures/cubemap/03/negx.png",
-	//				"textures/cubemap/03/posy.png",
-	//				"textures/cubemap/03/negy.png",
-	//				"textures/cubemap/03/posz.png",
-	//				"textures/cubemap/03/negz.png"
-	//			};
-	//			changeCubeMapFaces(faces);
-	//			toggle = 0;
-	//		}
-	//	}
+		}
+		else {
+			HouseFrame = 0;
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, gLights[0].Position);
+			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+			sunShader->setMat4("model", model);
+			if (toggle != 0) {
+				vector<std::string> faces = {
+					"textures/cubemap/03/posx.png",
+					"textures/cubemap/03/negx.png",
+					"textures/cubemap/03/posy.png",
+					"textures/cubemap/03/negy.png",
+					"textures/cubemap/03/posz.png",
+					"textures/cubemap/03/negz.png"
+				};
+				changeCubeMapFaces(faces);
+				toggle = 0;
+			}
+		}
 
-	//	//Atardeceres
-	//	if (t > day_duration_sec / 2) { //Anochecer
-	//		gLights.at(0).Color = glm::vec4(0.08f, 0.08f, 0.2f, 1.0f);
+		//Cmabio de luces
+		if (t > day_duration_sec / 2) { //Anochecer
+			gLights.at(0).Color = glm::vec4(0.08f, 0.08f, 0.2f, 1.0f);
 
-	//	}
-	//	else { //Amanecer, día y atardecer
-	//		gLights.at(0).Color.x = 0.2f; //Rojo activo todo el día
-	//		gLights.at(0).Color.y = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
-	//		gLights.at(0).Color.z = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
-	//	}
-	//	sunShader->setVec4("LightColor", gLights.at(0).Color);
-	//	SunModel->Draw(*sunShader);
-	//}
-	//glUseProgram(0);
+		}
+		else { //Amanecer, día y atardecer
+			gLights.at(0).Color.x = 0.2f; //Rojo activo todo el día
+			gLights.at(0).Color.y = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.3);
+			gLights.at(0).Color.z = 0.2f * pow(sin(glm::radians(360 / day_duration_sec * t)), 0.4);
+		}
+		sunShader->setVec4("LightColor", gLights.at(0).Color);
+		SunModel->Draw(*sunShader);
+	}
+	glUseProgram(0);
 
 	//{ //Marco Puerta
 	//
@@ -601,9 +629,15 @@ bool Update() {
 	//	glUseProgram(0);
 	//}
 
-	glStencilFunc(GL_ALWAYS, 100, 0xFF);
+	
 	glStencilMask(0xFF);
-	dynamicLightDraw(cultivos, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
+
+	for (int i = 100; i <= MAX_INTERACTIVES + 100; i++) {
+		glStencilFunc(GL_ALWAYS,i, 0xFF);
+		dynamicLightDraw(interactives.at(i-100),projection,view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
+	}
+
+	//dynamicLightDraw(cultivos, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
 	
 	
 	
@@ -803,9 +837,9 @@ bool Update() {
 	//	mirrorStencilShader->setMat4("projection", projection);
 	//	mirrorStencilShader->setMat4("view", view);
 
-	//	cout << "x:" << cos(rotation) + camera.Position.x << endl;
+		/*cout << "x:" << camera.Position.x << endl;
 
-	//	cout << "z" << sin(rotation) + camera.Position.z << endl;
+		cout << "z" <<  camera.Position.z << endl;*/
 	//	cout << endl;
 	//	// Aplicamos transformaciones del modelo
 	//	glm::mat4 model = glm::mat4(1.0f);
@@ -833,22 +867,24 @@ bool Update() {
 	
 	glStencilFunc(GL_NOTEQUAL, 100, 0xFF);
 	glStencilMask(0x00);
-	if (valorLeido == 100) {
-		outlineDraw(cultivos_outline, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
+
+
+
+	if (valorLeido >= 100) {
+		outlineDraw(outlines.at(valorLeido-100), projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
 		if (textEnable) {
 			glStencilMask(0xFF); //Habilita la edición del buffer
 			glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve el mappeo de 0 a todo
 			glClear(GL_DEPTH_BUFFER_BIT);
-			textDraw(texto, camera, projection, view);
+			textDraw(texto, camera, projection, view,glm::vec3(1.0f),valorLeido-100);
 		}
-		//if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS||textEnable==true) {
-
-		//}
-
-		//cout << "Valor escaneado: " << valorLeido << endl;
 	}
 	else {
 		textEnable = false;
+	}
+
+	if (tutorial) {
+		textDraw(texto, camera, projection, view, glm::vec3(1.0f), 16);
 	}
 
 	//Dibujar cursos
@@ -877,14 +913,26 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		camera.ProcessKeyboard(FORWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		tutorial = false;
+	}
+		
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
 		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		tutorial = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
 		camera.ProcessKeyboard(LEFT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		tutorial = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
 		camera.ProcessKeyboard(RIGHT, deltaTime);
+		tutorial = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+		tutorial = false;
+	}
 	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
@@ -902,12 +950,15 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
 		//cout << valorLeido << endl;
-		if (valorLeido >= 100) { //Se abre el mensaje
-			if (pastPRESS == GLFW_RELEASE) { //No había mensaje
+		if (valorLeido >= 100) { //Se ve a un objeto interactivo
+			if (pastPRESS == GLFW_RELEASE) { //Se puede presionar E
 				textEnable = not textEnable;
 				pastPRESS = 1;
 			}
 		}
+		
+		tutorial = false;
+		
 	}else {
 		if (timeRELEASE < 0.4) { //400 ms de cooldawn
 			timeRELEASE += deltaTime;
@@ -1004,7 +1055,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = (float)xpos;
 	lastY = (float)ypos;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
+	if(not tutorial) camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: Complemento para el movimiento y eventos del mouse
@@ -1032,6 +1083,7 @@ void outlineDraw(Model * model, glm::mat4 projection, glm::mat4 view, glm::vec3 
 
 void textDraw(Model * texto, Camera camera, glm::mat4 projection, glm::mat4 view, glm::vec3 scale, int ID_text){
 	textShader->use();
+	textShader->setInt("frame", ID_text);
 	textShader->setMat4("projection",projection);
 	textShader->setMat4("view", view);
 
@@ -1044,7 +1096,7 @@ void textDraw(Model * texto, Camera camera, glm::mat4 projection, glm::mat4 view
 
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(5.0f * camera.Front.x + camera.Position.x, 5.0f * camera.Front.y + camera.Position.y, 5.0f * camera.Front.z + camera.Position.z))*glm::rotate(modelMatrix, -glm::radians(camera.Yaw), glm::vec3(0.0f,1.0f,0.0f))*glm::rotate(modelMatrix, glm::radians(camera.Pitch), glm::vec3(0.0f, 0.0f, 1.0f))* glm::rotate(modelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(5.0f * camera.Front.x + camera.Position.x, 5.0f * camera.Front.y + camera.Position.y, 5.0f * camera.Front.z + camera.Position.z))*glm::rotate(modelMatrix, -glm::radians(camera.Yaw), glm::vec3(0.0f,1.0f,0.0f))*glm::rotate(modelMatrix, glm::radians(camera.Pitch), glm::vec3(0.0f, 0.0f, 1.0f))* glm::rotate(modelMatrix, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *glm::rotate(modelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	//*
 
 	
