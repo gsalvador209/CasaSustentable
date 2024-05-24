@@ -77,12 +77,16 @@ float t = 0.0f;
 float day_duration_sec = 120.0f; //Los segundos aproximados que dura un día
 bool time_flow = true;
 int toggle = 0;
-
 int HouseFrame = 0;
 
 //Variables de control de texto
 GLint valorLeido;
-bool tongleText = false;
+bool textEnable = false;
+
+//Control de entrada
+int pastPRESS = 0;
+float timeRELEASE = 0;
+
 
 glm::vec3 position(0.0f, 0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
@@ -831,20 +835,20 @@ bool Update() {
 	glStencilMask(0x00);
 	if (valorLeido == 100) {
 		outlineDraw(cultivos_outline, projection, view, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
-		if (tongleText) {
+		if (textEnable) {
 			glStencilMask(0xFF); //Habilita la edición del buffer
 			glStencilFunc(GL_ALWAYS, 0, 0xFF); //Vuelve el mappeo de 0 a todo
 			glClear(GL_DEPTH_BUFFER_BIT);
 			textDraw(texto, camera, projection, view);
 		}
-		//if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS||tongleText==true) {
+		//if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS||textEnable==true) {
 
 		//}
 
 		//cout << "Valor escaneado: " << valorLeido << endl;
 	}
 	else {
-		tongleText = false;
+		textEnable = false;
 	}
 
 	//Dibujar cursos
@@ -898,10 +902,19 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
 		//cout << valorLeido << endl;
-		if (valorLeido >= 100) {
-			tongleText = true;
+		if (valorLeido >= 100) { //Se abre el mensaje
+			if (pastPRESS == GLFW_RELEASE) { //No había mensaje
+				textEnable = not textEnable;
+				pastPRESS = 1;
+			}
 		}
-
+	}else {
+		if (timeRELEASE < 0.4) { //400 ms de cooldawn
+			timeRELEASE += deltaTime;
+		}
+		else { //Una vez termina el tiempo, permite un nuevo press
+			pastPRESS = 0;
+		}
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
